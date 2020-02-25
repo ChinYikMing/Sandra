@@ -5,6 +5,6 @@
 #ifndef SANDRA_HELLO_H
 #define SANDRA_HELLO_H
 
-int say_hello(const char *str);
+int sdr_hello(const char *str);
 
 #endif //SANDRA_HELLO_H

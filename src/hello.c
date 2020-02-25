@@ -5,6 +5,6 @@
 #include "../include/hello.h"
 #include <stdio.h>
 
-int say_hello(const char *str) {
+int sdr_hello(const char *str) {
     return printf("hello, %s\n", str);
 }

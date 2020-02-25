@@ -12,11 +12,10 @@ set(CAMEL_PREFIX "Sdr")
 # ==================================================
 
 # ================= BUILD OPTIONS ==================
-set(USE_PREFIX ON CACHE STRING "Use libSandra Prefix" FORCE)
-
+set(USE_PREFIX ON CACHE STRING "Build with identifier prefix")
 set(BUILD_TYPE "Release")
 if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-    message("Setting build type to '${BUILD_TYPE}' as none was specified.")
+    message(STATUS "Setting build type to '${BUILD_TYPE}' as none was specified.")
     set(CMAKE_BUILD_TYPE ${BUILD_TYPE} CACHE STRING "Choose the type of build." FORCE)
     # Set the possible values of build type for cmake-gui
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
@@ -47,6 +46,7 @@ endforeach ()
 
 # ================= BUILD LIBRARY ==================
 if (USE_PREFIX)
+    message(STATUS "Building with the identifier prefix")
     add_library(sandra SHARED ${SANDRA_SRC} ${SANDRA_INC})
     foreach (cf ${SANDRA_CONFIG_FILES})
         target_sources(sandra PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/${cf})
@@ -55,6 +55,7 @@ if (USE_PREFIX)
             ${CMAKE_CURRENT_SOURCE_DIR}/${SANDRA_INC_DIR}
             ${CMAKE_CURRENT_BINARY_DIR}/${SANDRA_INC_DIR})
 else ()
+    message(STATUS "Building without the identifier prefix")
     add_library(sandra SHARED)
 
     # Duplicate sources & headers to BINARY_DIR for scripting

@@ -8,7 +8,7 @@
 
 int main() {
     printf("Sandra Version: %s\n", sdr_version());
-    say_hello("World!");
+    sdr_hello("World!");
 
     return 0;
 }
