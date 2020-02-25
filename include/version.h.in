@@ -1,0 +1,18 @@
+//
+// Created by Jason Zheng on 2020/2/25.
+//
+
+#ifndef SANDRA_VERSION_H
+#define SANDRA_VERSION_H
+
+// the configured options and settings for Sandra
+#define SDR_VERSION   "@PROJECT_VERSION@"
+#define SDR_VER_MAJOR @PROJECT_VERSION_MAJOR@
+#define SDR_VER_MINOR @PROJECT_VERSION_MINOR@
+#define SDR_VER_PATCH @PROJECT_VERSION_PATCH@
+
+static inline const char *sdr_version() {
+    return SDR_VERSION;
+}
+
+#endif //SANDRA_VERSION_H
