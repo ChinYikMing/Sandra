@@ -114,3 +114,15 @@ add_custom_target(uninstall
 # ================== SUB PROJECTS ==================
 add_subdirectory(examples)
 # ==================================================
+
+
+set(TEST_DIR test-framework)
+
+# Add GoogleTest to the project
+include(cmake/googletest.cmake)
+fetch_googletest(
+        ${PROJECT_SOURCE_DIR}/cmake
+        ${PROJECT_SOURCE_DIR}/${TEST_DIR}
+)
+
+add_subdirectory(test)

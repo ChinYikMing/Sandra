@@ -4,6 +4,7 @@
 
 #include "../include/hello.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 int sdr_hello(const char *str) {
     return printf("hello, %s\n", str);
