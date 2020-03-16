@@ -77,7 +77,7 @@ else ()
         # Remove prefix if necessary
         execute_process(COMMAND bash -c "
             perl -pi -e \
-            's/(?!${MUST_PREFIX_PATTERN})(${UPPER_PREFIX}|${LOWER_PREFIX}|${CAMEL_PREFIX})([a-zA-Z0-9_]+)/\\2/g' \
+            's/(?!${MUST_PREFIX_PATTERN})(${UPPER_PREFIX}|${LOWER_PREFIX}|${CAMEL_PREFIX})#{0,2}([a-zA-Z0-9_]+)/\\2/g' \
             ${CMAKE_CURRENT_BINARY_DIR}/${s}")
 
         # Add sources from BIN_DIR rather than SRC_DIR.
@@ -119,7 +119,9 @@ add_custom_target(uninstall
 
 
 # ================== SUB PROJECTS ==================
-add_subdirectory(examples)
-add_subdirectory(test)
+if (USE_PREFIX)
+    add_subdirectory(examples)
+    add_subdirectory(test)
+endif ()
 # ==================================================
 
