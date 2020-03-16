@@ -134,11 +134,12 @@ static void *sdr_pvt_put_with_hash_val(SdrHashMap *map, const void *k, const voi
     entry->status = SDR_MAP_ENTRY_ADDED;
     const size_t size = ++base->ctx.size;
 
-    /* rehashing */
-    if (size >= map->max_load) sdr_pvt_hash_map_rehash(map);
-
     if (base->save_hash_val)
         map->hashv_list[entry - base->buckets] = hashv;
+
+    /* rehashing */
+    if (size >= map->max_load)
+        sdr_pvt_hash_map_rehash(map);
 
     return NULL;
 }
