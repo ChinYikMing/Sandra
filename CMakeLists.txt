@@ -6,6 +6,9 @@ project(sandra
         LANGUAGES C)
 
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-initializer-overrides")
+enable_testing()
+
 set(UPPER_PREFIX "SDR_")
 set(LOWER_PREFIX "sdr_")
 set(CAMEL_PREFIX "Sdr")
@@ -26,13 +29,17 @@ endif ()
 
 # ============== PROJECT DEPENDENCIES ==============
 set(SANDRA_SRC_DIR src)
-set(SANDRA_SRC
-        src/hello.c)
+set(SANDRA_SRC src/abs_hash_map.c src/hash_map.c)
 
 set(SANDRA_INC_DIR include)
 set(SANDRA_INC
-        include/hello.h
-        include/version.h)
+        include/version.h
+        include/vector.h
+        include/hash_map.h
+        include/map.h
+        include/abs_hash_map.h
+        include/hash.h
+        include/basis.h)
 
 set(MUST_PREFIX_PATTERN
         "sdr_version|SDR_VERSION|SDR_VER_MAJOR|SDR_VER_MINOR|SDR_VER_PATCH")
@@ -113,16 +120,6 @@ add_custom_target(uninstall
 
 # ================== SUB PROJECTS ==================
 add_subdirectory(examples)
+add_subdirectory(test)
 # ==================================================
 
-
-set(TEST_DIR test-framework)
-
-# Add GoogleTest to the project
-include(cmake/googletest.cmake)
-fetch_googletest(
-        ${PROJECT_SOURCE_DIR}/cmake
-        ${PROJECT_SOURCE_DIR}/${TEST_DIR}
-)
-
-add_subdirectory(test)
