@@ -6,6 +6,7 @@
 #define SANDRA_ABS_HASH_MAP_H
 
 #include "basis.h"
+#include "size.h"
 #include "map.h"
 
 typedef struct sdr_abs_hash_map SdrAbsHashMap;

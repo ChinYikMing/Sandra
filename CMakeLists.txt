@@ -38,7 +38,8 @@ set(SANDRA_INC
         include/hash.h
         include/basis.h
         include/sgr.h
-        include/strbuf.h)
+        include/strbuf.h
+        include/size.h)
 
 set(SANDRA_SRC_DIR src)
 set(SANDRA_SRC

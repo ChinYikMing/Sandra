@@ -10,19 +10,6 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#ifndef SDR_CHAR_BITS
-#define SDR_CHAR_BITS    sizeof(char) * CHAR_BIT
-#endif
-#ifndef SDR_INT_BITS
-#define SDR_INT_BITS     sizeof(int) * CHAR_BIT
-#endif
-#ifndef SDR_LONG_BITS
-#define SDR_LONG_BITS    sizeof(long) * CHAR_BIT
-#endif
-#ifndef SDR_SIZE_T_BITS
-#define SDR_SIZE_T_BITS  sizeof(size_t) * CHAR_BIT
-#endif
-
 #ifndef sdr_offsetof
 #define sdr_offsetof(type, member)  __builtin_offsetof (type, member)
 #endif
@@ -155,34 +142,5 @@
     ursb(x) == 0; \
 })
 #endif
-
-/* ===================== BYTES ====================== */
-#define SDR_16_GiB 17179869184
-#define SDR_8_GiB 8589934592
-#define SDR_4_GiB 4294967296
-#define SDR_2_GiB 2147483648
-#define SDR_1_GiB 1073741824
-
-#define SDR_512_MiB 536870912
-#define SDR_256_MiB 268435456
-#define SDR_128_MiB 134217728
-#define SDR_64_MiB 67108864
-#define SDR_32_MiB 33554432
-#define SDR_16_MiB 16777216
-#define SDR_8_MiB 8388608
-#define SDR_4_MiB 4194304
-#define SDR_2_MiB 2097152
-#define SDR_1_MiB 1048576
-
-#define SDR_512_KiB 524288
-#define SDR_256_KiB 262144
-#define SDR_128_KiB 131072
-#define SDR_64_KiB 65536
-#define SDR_32_KiB 32768
-#define SDR_16_KiB 16384
-#define SDR_8_KiB 8192
-#define SDR_4_KiB 4096
-#define SDR_2_KiB 2048
-#define SDR_1_KiB 1024
 
 #endif //SANDRA_BASIS_H
