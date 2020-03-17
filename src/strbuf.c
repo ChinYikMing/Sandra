@@ -9,7 +9,7 @@
 int sdr_sbuf_putn(SdrStringBuf *sb, const void *src, const size_t n) {
     const size_t capacity = sb->capacity;
     const size_t size = sb->size;
-    const ssize_t extra_need = size + n - capacity;
+    const long extra_need = (long) (size + n - capacity);
     if (extra_need > 0) {
         const size_t total_need = capacity + extra_need;
         size_t new_capacity = capacity;

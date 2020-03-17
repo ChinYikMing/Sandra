@@ -6,7 +6,6 @@ project(sandra
         LANGUAGES C)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-initializer-overrides")
 enable_testing()
 
 set(UPPER_PREFIX "SDR_")

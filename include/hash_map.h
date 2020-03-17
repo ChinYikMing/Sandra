@@ -36,8 +36,9 @@ typedef struct sdr_hash_map_init_args {
     double load_factor;
 } SdrHashMapInitArgs;
 
-#define sdr_hash_map_init(m_map, ...) ({ \
-    sdr_pvt_hash_map_init((m_map), \
+#define sdr_hash_map_init(map, ...) ({ \
+SDR_SUPPRESS_WARN("-Winitializer-overrides") \
+    sdr_pvt_hash_map_init((map), \
         (&((SdrHashMapInitArgs){ \
         .cmp = (sdr_fn_cmp) strcmp, \
         .hash = NULL, \
@@ -47,6 +48,7 @@ typedef struct sdr_hash_map_init_args {
         .load_factor = SDR_HMAP_DFLT_LOAD_FACTOR, \
         __VA_ARGS__ \
     }))); \
+SDR_SUPPRESS_WARN_END \
 })
 
 #define sdr_hash_map_base(map) \

@@ -10,6 +10,28 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#if !defined(__printflike) && defined(GCC_VERSION)
+#define __printflike(fmtarg, firstvararg) \
+            __attribute__((__format__ (__printf__, fmtarg, firstvararg)))
+#endif
+
+#ifndef SDR_PRAGMA
+#define SDR_PRAGMA(x) _Pragma(#x)
+#endif
+
+#ifdef __clang__
+#define SDR_SUPPRESS_WARN(WARN_STR) \
+    SDR_PRAGMA(clang diagnostic push) \
+    SDR_PRAGMA(clang diagnostic ignored WARN_STR)
+#else
+#define SDR_SUPPRESS_WARN(WARN_STR) \
+    SDR_PRAGMA(GCC diagnostic push) \
+    SDR_PRAGMA(GCC diagnostic ignored WARN_STR)
+#endif
+
+#define SDR_SUPPRESS_WARN_END \
+    _Pragma("clang diagnostic pop")
+
 #ifndef sdr_offsetof
 #define sdr_offsetof(type, member)  __builtin_offsetof (type, member)
 #endif

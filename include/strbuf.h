@@ -5,6 +5,7 @@
 #ifndef SANDRA_STRBUF_H
 #define SANDRA_STRBUF_H
 
+#include "basis.h"
 #include <stdlib.h>
 #include <string.h>
 
