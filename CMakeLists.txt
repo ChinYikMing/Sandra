@@ -28,9 +28,6 @@ endif ()
 
 
 # ============== PROJECT DEPENDENCIES ==============
-set(SANDRA_SRC_DIR src)
-set(SANDRA_SRC src/abs_hash_map.c src/hash_map.c)
-
 set(SANDRA_INC_DIR include)
 set(SANDRA_INC
         include/version.h
@@ -39,7 +36,15 @@ set(SANDRA_INC
         include/map.h
         include/abs_hash_map.h
         include/hash.h
-        include/basis.h)
+        include/basis.h
+        include/sgr.h
+        include/strbuf.h)
+
+set(SANDRA_SRC_DIR src)
+set(SANDRA_SRC
+        src/abs_hash_map.c
+        src/hash_map.c
+        src/strbuf.c)
 
 set(MUST_PREFIX_PATTERN
         "sdr_version|SDR_VERSION|SDR_VER_MAJOR|SDR_VER_MINOR|SDR_VER_PATCH")
@@ -55,15 +60,21 @@ endforeach ()
 if (USE_PREFIX)
     message(STATUS "Building with the identifier prefix")
     add_library(sandra SHARED ${SANDRA_SRC} ${SANDRA_INC})
+    add_library(sandra_static STATIC ${SANDRA_SRC} ${SANDRA_INC})
     foreach (cf ${SANDRA_CONFIG_FILES})
         target_sources(sandra PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/${cf})
+        target_sources(sandra_static PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/${cf})
     endforeach ()
     target_include_directories(sandra PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}/${SANDRA_INC_DIR}
+            ${CMAKE_CURRENT_BINARY_DIR}/${SANDRA_INC_DIR})
+    target_include_directories(sandra_static PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/${SANDRA_INC_DIR}
             ${CMAKE_CURRENT_BINARY_DIR}/${SANDRA_INC_DIR})
 else ()
     message(STATUS "Building without the identifier prefix")
     add_library(sandra SHARED)
+    add_library(sandra_static STATIC)
 
     # Duplicate sources & headers to BINARY_DIR for scripting
     message(STATUS "Duplicating sandra dependencies...")
@@ -82,9 +93,11 @@ else ()
 
         # Add sources from BIN_DIR rather than SRC_DIR.
         target_sources(sandra PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/${s})
+        target_sources(sandra_static PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/${s})
     endforeach ()
 
     target_include_directories(sandra PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/${SANDRA_INC_DIR})
+    target_include_directories(sandra_static PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/${SANDRA_INC_DIR})
 endif ()
 # ==================================================
 
@@ -92,8 +105,9 @@ endif ()
 # ================ INSTALL LIBRARY =================
 set(INC_INSTALL_RELATIVE_DIR "include/sandra")
 
-install(TARGETS sandra
+install(TARGETS sandra sandra_static
         LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
         RUNTIME DESTINATION bin)
 
 if (USE_PREFIX)
@@ -114,7 +128,7 @@ endif ()
 # =============== UNINSTALL LIBRARY ================
 add_custom_target(uninstall
         COMMAND xargs rm < install_manifest.txt
-        && rm -r ${CMAKE_INSTALL_PREFIX}/${INC_INSTALL_RELATIVE_DIR})
+        && rmdir ${CMAKE_INSTALL_PREFIX}/${INC_INSTALL_RELATIVE_DIR})
 # ==================================================
 
 
