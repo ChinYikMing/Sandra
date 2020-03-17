@@ -1,4 +1,10 @@
 project(sandra-example)
 
-add_executable(hello-ex hello-ex.c)
-target_link_libraries(hello-ex sandra)
+set(EXAMPLE_NAMES
+        vector
+        hash_map)
+
+foreach (t ${EXAMPLE_NAMES})
+    add_executable(ex-${t} ${t}.c)
+    target_link_libraries(ex-${t} sandra)
+endforeach ()
