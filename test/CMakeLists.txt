@@ -7,7 +7,8 @@ find_library(CRITERION_LIB NAMES criterion libcriterion)
 include_directories(${CRITERION_INCLUDE_DIR})
 set(TESTING_NAMES
         vector
-        hash_map)
+        hash_map
+        embed_list)
 
 foreach (t ${TESTING_NAMES})
     add_executable(test-${t} ${t}.c)

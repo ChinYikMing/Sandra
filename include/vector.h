@@ -127,11 +127,11 @@ struct { \
     (vec)->val[m_rear]; \
 })
 
-#define sdr_vector_push_all_back(vec, items, m_num) ({ \
+#define sdr_vector_push_all_back(vec, items, num) ({ \
     int m_vpab_ret = 0; \
     const size_t m_el_size = (vec)->el_size; \
     const size_t m_size = (vec)->size; \
-    const size_t m_needed = (m_num); \
+    const size_t m_needed = (num); \
     /* expand if necessary */ \
     if (m_needed > (vec)->capacity - m_size) { \
         /* The simplest expansion strategy for space–time trade-off */ \
@@ -192,14 +192,14 @@ struct { \
     (vec)->val + (((vec)->front + idx) & ((vec)->capacity - 1)); \
 })
 
+#define sdr_vector_get(vec, idx) ({ \
+    *(sdr_vector_entry(vec, idx)); \
+})
+
 #define sdr_vector_raw(vec) ({ \
     typeof((vec)->val) m_vr_ret = NULL; \
     if (!sdr_vector_straighten(vec)) m_vr_ret = (vec)->val; \
     m_vr_ret; \
-})
-
-#define sdr_vector_get(vec, idx) ({ \
-    *(sdr_vector_entry(vec, idx)); \
 })
 
 #define sdr_vector_for_each(vec, idx, item) \

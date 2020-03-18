@@ -3,7 +3,7 @@
 //
 
 #include <criterion/criterion.h>
-#include "vector.h"
+#include <vector.h>
 
 Test(IntVector, push_back) {
     SdrVector(int) vec;
