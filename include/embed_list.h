@@ -8,7 +8,8 @@
 #include "basis.h"
 
 typedef struct sdr_embed_list {
-    struct sdr_embed_list *next, *prev;
+    struct sdr_embed_list *next;
+    struct sdr_embed_list *prev;
 } SdrEmbedList;
 
 #define SDR_DEFINE_EMBED_LIST(name) \
@@ -34,9 +35,9 @@ static inline void sdr_elist_push_back(SdrEmbedList *elist, SdrEmbedList *new) {
 static inline int sdr_elist_insert(SdrEmbedList *elist, SdrEmbedList *new, size_t idx) {
     SdrEmbedList *curr = elist->next;
     size_t curr_idx = 0;
-    while (curr_idx < idx  && curr != (elist))
+    while (curr_idx < idx && curr != (elist))
         curr_idx++, curr = curr->next;
-    if (curr_idx != idx  || curr == elist) return -1;
+    if (curr_idx != idx || curr == elist) return -1;
     sdr_elist_push_front(curr->prev, new);
     return 0;
 }

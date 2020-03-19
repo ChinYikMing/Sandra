@@ -38,7 +38,9 @@ set(SANDRA_INC
         include/basis.h
         include/sgr.h
         include/strbuf.h
-        include/size.h include/embed_list.h)
+        include/size.h
+        include/embed_list.h
+        include/list.h)
 
 set(SANDRA_SRC_DIR src)
 set(SANDRA_SRC

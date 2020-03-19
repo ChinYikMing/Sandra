@@ -8,7 +8,8 @@ include_directories(${CRITERION_INCLUDE_DIR})
 set(TESTING_NAMES
         vector
         hash_map
-        embed_list)
+        embed_list
+        list)
 
 foreach (t ${TESTING_NAMES})
     add_executable(test-${t} ${t}.c)
