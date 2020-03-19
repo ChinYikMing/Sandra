@@ -86,11 +86,11 @@ static inline SdrList *sdr_list_pop_back(SdrList *list) {
 })
 
 #define sdr_list_for(list, ptr) \
-    for(SdrList *ptr = sdr_elist_data((list)->node.next, SdrList, node); \
+    for(ptr = sdr_elist_data((list)->node.next, SdrList, node); \
         ptr != (list); ptr = sdr_elist_data(ptr->node.next, SdrList, node))
 
 #define sdr_list_for_s(list, ptr) \
-    for(SdrList *ptr = sdr_elist_data((list)->node.next, SdrList, node), \
+    for(ptr = sdr_elist_data((list)->node.next, SdrList, node), \
         *m_lfs_tmp = sdr_elist_data(ptr->node.next, SdrList, node); \
         ptr != (list); ptr = m_lfs_tmp, \
         m_lfs_tmp = sdr_elist_data(m_lfs_tmp->node.next, SdrList, node))

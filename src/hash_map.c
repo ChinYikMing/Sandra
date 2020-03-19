@@ -57,19 +57,6 @@ int sdr_hash_map_remove(SdrHashMap *map, const void *k) {
     return 0;
 }
 
-/* todo: use macro to replace callback */
-void sdr_hash_map_for_each(SdrHashMap *map, int (*task)(SdrMapEntry *, size_t, int argc, void **argv),
-                           int argc, void **argv) {
-    SdrMapEntry *bucket = map->base.buckets;
-    size_t index = 0;
-    for (size_t i = 0; i < map->base.capacity; i++) {
-        SdrMapEntry *entry = bucket + i;
-        if (entry->status != SDR_MAP_ENTRY_ADDED) continue;
-        if (!task(entry, index++, argc, argv))
-            return;
-    }
-}
-
 void sdr_hash_map_destroy(SdrHashMap *map) {
     sdr_abs_hmap_destroy(&map->base);
     if (map->base.save_hash_val)

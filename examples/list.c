@@ -23,6 +23,7 @@ int main() {
         sdr_list_push_back(&list, n);
     }
 
+    SdrList *ptr;
     sdr_list_for(&list, ptr) {
         User *u = sdr_list_data(ptr);
         printf("User[%d]: %s\n", u->id, u->name);

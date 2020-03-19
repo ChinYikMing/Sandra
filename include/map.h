@@ -19,7 +19,6 @@
     (map)->get = (sdr_fn_map_get) sdr_##type##_get; \
     (map)->entry = (sdr_fn_map_entry) sdr_##type##_entry; \
     (map)->remove = (sdr_fn_map_remove) sdr_##type##_remove; \
-    (map)->for_each = (sdr_fn_map_for_each) sdr_##type##_for_each; \
     (map)->ctx = (sdr_fn_map_ctx) sdr_##type##_ctx; \
     (map)->destroy = (sdr_fn_map_destroy) sdr_##type##_destroy; \
 })
@@ -113,11 +112,6 @@ static inline void *sdr_map_get(const SdrMap *map, const void *k) {
 
 static inline int sdr_map_remove(const SdrMap *map, const void *k) {
     return map->remove(map->impl, k);
-}
-
-static inline void sdr_map_for_each(const SdrMap *map, int (*task)(SdrMapEntry *, size_t, int argc, void **argv),
-                                    int argc, void **argv) {
-    map->for_each(map->impl, task, argc, argv);
 }
 
 static inline SdrMapCtx *sdr_map_ctx(const SdrMap *map) {

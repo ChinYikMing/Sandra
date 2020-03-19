@@ -24,6 +24,7 @@ int main() {
         sdr_elist_push_back(&list, &u->node);
     }
 
+    SdrEmbedList *ptr;
     sdr_elist_for(&list, ptr) {
         User *u = sdr_elist_data(ptr, User, node);
         printf("User[%d]: %s\n", u->id, u->name);

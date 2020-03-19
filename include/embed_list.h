@@ -94,14 +94,15 @@ static inline SdrEmbedList *sdr_elist_pop_back(SdrEmbedList *elist) {
 })
 
 #define sdr_elist_for(elist, ptr) \
-    for(SdrEmbedList *ptr = (elist)->next; ptr != (elist); ptr = ptr->next)
+    for(ptr = (elist)->next; ptr != (elist); ptr = ptr->next)
 
 #define sdr_elist_for_s(elist, ptr) \
-    for(SdrEmbedList *ptr = (elist)->next, *m_efs_tmp = ptr->next; \
+    for(ptr = (elist)->next, *m_efs_tmp = ptr->next; \
         ptr != (elist); ptr = m_efs_tmp, m_efs_tmp = m_efs_tmp->next)
 
 #define sdr_elist_size(elist) ({ \
     size_t m_es_ret = 0; \
+    SdrEmbedList *m_es_ptr; \
     sdr_elist_for(elist, m_es_ptr) { \
         m_es_ret++; \
     } \
