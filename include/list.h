@@ -9,7 +9,7 @@
 
 typedef struct sdr_list {
     void *data;
-    SdrEmbedList node;
+    SdrEList node;
 } SdrList;
 
 #define SDR_DEFINE_LIST(m_name) \
@@ -44,16 +44,16 @@ static inline int sdr_list_insert(SdrList *list, SdrList *new, size_t idx) {
 }
 
 static inline void sdr_list_remove(SdrList *node) {
-    sdr_elist_remove(&node->node);
+    sdr_elist_remove_entry(&node->node);
 }
 
 static inline SdrList *sdr_list_pop_front(SdrList *list) {
-    SdrEmbedList *ret = sdr_elist_pop_front(&list->node);
+    SdrEList *ret = sdr_elist_pop_front(&list->node);
     return ret ? sdr_elist_data(ret, SdrList, node) : NULL;
 }
 
 static inline SdrList *sdr_list_pop_back(SdrList *list) {
-    SdrEmbedList *ret = sdr_elist_pop_back(&list->node);
+    SdrEList *ret = sdr_elist_pop_back(&list->node);
     return ret ? sdr_elist_data(ret, SdrList, node) : NULL;
 }
 

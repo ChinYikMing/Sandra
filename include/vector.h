@@ -127,7 +127,7 @@ struct { \
     (vec)->val[m_rear]; \
 })
 
-#define sdr_vector_push_all_back(vec, items, num) ({ \
+#define sdr_vector_bulk_push_back(vec, items, num) ({ \
     int m_vpab_ret = 0; \
     const size_t m_el_size = (vec)->el_size; \
     const size_t m_size = (vec)->size; \
@@ -202,12 +202,12 @@ struct { \
     m_vr_ret; \
 })
 
-#define sdr_vector_for_each(vec, idx, item) \
+#define sdr_vector_for_data(vec, idx, item) \
     for (idx = 0, item = sdr_vector_get(vec, idx); \
         idx < (vec)->size && (item = sdr_vector_get(vec, idx), 1); \
         idx++)
 
-#define sdr_vector_for_each_p(vec, idx, m_ptr) \
+#define sdr_vector_for(vec, idx, m_ptr) \
     for (idx = 0, m_ptr = sdr_vector_entry(vec, idx); \
         idx < (vec)->size && (m_ptr = sdr_vector_entry(vec, idx), 1); \
         idx++)

@@ -75,7 +75,7 @@ Test(EmbedList, get) {
     typedef struct user {
         int id;
         char *name;
-        SdrEmbedList node;
+        SdrEList node;
     } User;
 
     SDR_DEFINE_LIST(list);

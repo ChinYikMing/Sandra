@@ -28,7 +28,7 @@ Test(IntVector, push_back) {
 
     size_t index;
     int item;
-    sdr_vector_for_each(&vec, index, item) {
+    sdr_vector_for_data(&vec, index, item) {
         cr_assert(index * 10 == item);
         index++;
     }
@@ -68,7 +68,7 @@ Test(IntVector, push_front) {
 
     size_t index;
     int item;
-    sdr_vector_for_each(&vec, index, item) {
+    sdr_vector_for_data(&vec, index, item) {
         cr_assert((test_size - index - 1) * 10 == item);
         index++;
     }
@@ -214,7 +214,7 @@ Test(IntVector, push_all_back) {
     cr_assert(vec.rear == 5);
 
     int list[15];
-    sdr_vector_push_all_back(&vec, list, 15);
+    sdr_vector_bulk_push_back(&vec, list, 15);
     cr_assert(vec.cap_bits == 5);
     cr_assert(vec.capacity == 32);
     cr_assert(vec.capacity == sdr_vector_capacity(&vec));
@@ -229,7 +229,7 @@ Test(IntVector, push_all_back_with_empty_size) {
     sdr_vector_init(&vec, bits);
 
     int list[16];
-    sdr_vector_push_all_back(&vec, list, 16);
+    sdr_vector_bulk_push_back(&vec, list, 16);
     cr_assert(vec.cap_bits == 5);
     cr_assert(vec.capacity == 32);
     cr_assert(vec.capacity == sdr_vector_capacity(&vec));

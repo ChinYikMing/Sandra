@@ -46,7 +46,8 @@ set(SANDRA_SRC_DIR src)
 set(SANDRA_SRC
         src/abs_hash_map.c
         src/hash_map.c
-        src/strbuf.c)
+        src/strbuf.c
+        src/embed_list.c)
 
 set(MUST_PREFIX_PATTERN
         "sdr_version|SDR_VERSION|SDR_VER_MAJOR|SDR_VER_MINOR|SDR_VER_PATCH")

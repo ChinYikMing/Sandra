@@ -2,7 +2,7 @@
 // Created by Jason Zheng on 2020/3/12.
 //
 
-#include "hash_map.h"
+#include <hash_map.h>
 #include <string.h>
 #include <assert.h>
 
@@ -13,9 +13,9 @@ typedef struct sdr_rehash_entry {
 
 
 /* ========= PRIVATE METHODS (DECLARATION) ========== */
-static int sdr_pvt_hash_map_rehash(SdrHashMap *map);
+static int sdr_hash_map_rehash(SdrHashMap *map);
 
-static void *sdr_pvt_put_with_hash_val(SdrHashMap *map, const void *k, const void *v, size_t hashv);
+static void *sdr_pvt_hash_map_put(SdrHashMap *map, const void *k, const void *v, size_t hashv);
 
 /**
 * @param index       probing starting index
@@ -23,21 +23,21 @@ static void *sdr_pvt_put_with_hash_val(SdrHashMap *map, const void *k, const voi
 *                    it returns a pointer to this empty bucket if 'find_empty' is true.
 * @return            pointer to MapEntry which key is equal to k (unless find_empty case)
 */
-static SdrMapEntry *sdr_pvt_linear_probing(SdrHashMap *map, const void *key, size_t index, int find_empty);
+static SdrMapEntry *sdr_hash_map_linear_probing(SdrHashMap *map, const void *key, size_t index, int find_empty);
 
-static SdrMapEntry *sdr_pvt_quadratic_probing(SdrHashMap *map, const void *k, size_t index, int find_empty);
+static SdrMapEntry *sdr_hash_map_quadratic_probing(SdrHashMap *map, const void *k, size_t index, int find_empty);
 
 
 /* ================= PUBLIC METHODS ================= */
 void *sdr_hash_map_put(SdrHashMap *map, const void *k, const void *v) {
     const size_t hashv = sdr_hash_map_hashv(map, k);
-    return sdr_pvt_put_with_hash_val(map, k, v, hashv);
+    return sdr_pvt_hash_map_put(map, k, v, hashv);
 }
 
 void *sdr_hash_map_entry(SdrHashMap *map, const void *k) {
     const size_t hashv = sdr_hash_map_hashv(map, k);
     const size_t index = sdr_hash_map_index(map, hashv);
-    SdrMapEntry *entry = sdr_pvt_linear_probing(map, k, index, 0);
+    SdrMapEntry *entry = sdr_hash_map_linear_probing(map, k, index, 0);
     return entry ? entry : NULL;
 }
 
@@ -86,10 +86,10 @@ int sdr_pvt_hash_map_init(SdrHashMap *map, SdrHashMapInitArgs *args) {
     return 0;
 }
 
-static void *sdr_pvt_put_with_hash_val(SdrHashMap *map, const void *k, const void *v, size_t hashv) {
+static void *sdr_pvt_hash_map_put(SdrHashMap *map, const void *k, const void *v, size_t hashv) {
     SdrAbsHashMap *base = &map->base;
     size_t index = sdr_hash_map_index(map, hashv);
-    SdrMapEntry *entry = sdr_pvt_linear_probing(map, k, index, 1);
+    SdrMapEntry *entry = sdr_hash_map_linear_probing(map, k, index, 1);
     assert(entry);
 
     if (entry->status == SDR_MAP_ENTRY_ADDED) {
@@ -126,12 +126,12 @@ static void *sdr_pvt_put_with_hash_val(SdrHashMap *map, const void *k, const voi
 
     /* rehashing */
     if (size >= map->max_load)
-        sdr_pvt_hash_map_rehash(map);
+        sdr_hash_map_rehash(map);
 
     return NULL;
 }
 
-static int sdr_pvt_hash_map_rehash(SdrHashMap *map) {
+static int sdr_hash_map_rehash(SdrHashMap *map) {
     SdrAbsHashMap *base = &map->base;
     const size_t old_size = base->capacity;
     const size_t new_size = old_size << 1u;
@@ -174,14 +174,14 @@ static int sdr_pvt_hash_map_rehash(SdrHashMap *map) {
 
     for (size_t i = 0; i < esp; i++) {
         SdrRehashEntry *e = old_entries + i;
-        sdr_pvt_put_with_hash_val(map, e->entry.key, e->entry.value, e->hash_val);
+        sdr_pvt_hash_map_put(map, e->entry.key, e->entry.value, e->hash_val);
     }
     free(old_entries);
 
     return 0;
 }
 
-SdrMapEntry *sdr_pvt_linear_probing(SdrHashMap *map, const void *key, const size_t index, const int find_empty) {
+SdrMapEntry *sdr_hash_map_linear_probing(SdrHashMap *map, const void *key, size_t index, int find_empty) {
     SdrAbsHashMap *base = &map->base;
     SdrMapEntry *start = map->base.buckets + index;
     SdrMapEntry *curr = start;
@@ -210,7 +210,7 @@ SdrMapEntry *sdr_pvt_linear_probing(SdrHashMap *map, const void *key, const size
     return NULL;
 }
 
-SdrMapEntry *sdr_pvt_quadratic_probing(SdrHashMap *map, const void *key, const size_t index, const int find_empty) {
+SdrMapEntry *sdr_hash_map_quadratic_probing(SdrHashMap *map, const void *k, size_t index, int find_empty) {
     SdrAbsHashMap *base = &map->base;
     SdrMapEntry *curr = base->buckets + index;
     const size_t n_buckets = base->capacity;
@@ -226,7 +226,7 @@ SdrMapEntry *sdr_pvt_quadratic_probing(SdrHashMap *map, const void *key, const s
                 break;
             case SDR_MAP_ENTRY_ADDED:
                 curr_key = curr->key;
-                if (curr_key == key || !base->ctx.cmp(curr_key, key))
+                if (curr_key == k || !base->ctx.cmp(curr_key, k))
                     return curr;
                 break;
         }
