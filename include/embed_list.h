@@ -7,6 +7,7 @@
 
 #include "basis.h"
 #include "vector.h"
+#include "compiler_attr.h"
 
 typedef struct sdr_elist {
     struct sdr_elist *prev;
@@ -22,7 +23,7 @@ typedef int (*sdr_fn_elist_cmp)(SdrEList *e1, SdrEList *e2, void *arg);
 
 
 /* ================ PRIVATE METHODS ================= */
-__attribute__((always_inline))
+sdr_attr_always_inline
 static inline void sdr_pvt_elist_add(SdrEList *prev, SdrEList *next, SdrEList *new) {
     prev->next = new;
     new->prev = prev;
@@ -30,7 +31,7 @@ static inline void sdr_pvt_elist_add(SdrEList *prev, SdrEList *next, SdrEList *n
     new->next = next;
 }
 
-__attribute__((always_inline))
+sdr_attr_always_inline
 static inline void sdr_pvt_elist_splice(SdrEList *prev, SdrEList *next,
                                         SdrEList *new_head, SdrEList *new_tail) {
     prev->next = new_head;
@@ -39,19 +40,19 @@ static inline void sdr_pvt_elist_splice(SdrEList *prev, SdrEList *next,
     next->prev = new_tail;
 }
 
-__attribute__((always_inline))
+sdr_attr_always_inline
 static inline void sdr_pvt_elist_remove(SdrEList *prev, SdrEList *next) {
     prev->next = next;
     next->prev = prev;
 }
 
-__attribute__((always_inline))
+sdr_attr_always_inline
 static inline void sdr_pvt_elist_bulk_remove(SdrEList *prev, SdrEList *next) {
     prev->next = next;
     next->prev = prev;
 }
 
-__attribute__((always_inline))
+sdr_attr_always_inline
 static inline void sdr_pvt_elist_bulk_remove_s(SdrEList *prev, SdrEList *next) {
     prev->next->prev = next->prev;
     next->prev->next = prev->next;

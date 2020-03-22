@@ -6,6 +6,7 @@
 #define SANDRA_STRBUF_H
 
 #include "basis.h"
+#include "compiler_attr.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -27,7 +28,8 @@ int sdr_strbuf_putc(SdrStrBuf *sb, char c);
 
 int sdr_strbuf_putn(SdrStrBuf *sb, const void *src, size_t n);
 
-int sdr_strbuf_putf(SdrStrBuf *sb, const char *format, ...) __printflike(2, 3);
+int sdr_strbuf_putf(SdrStrBuf *sb, const char *format, ...)
+sdr_attr_printf_like(2, 3);
 
 static inline int sdr_strbuf_puts(SdrStrBuf *sb, const char *str) {
     return sdr_strbuf_putn(sb, str, strlen(str));

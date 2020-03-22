@@ -8,6 +8,7 @@
 #include "basis.h"
 #include "size.h"
 #include "map.h"
+#include "compiler_attr.h"
 
 typedef struct sdr_abs_hash_map SdrAbsHashMap;
 
@@ -32,7 +33,7 @@ struct sdr_abs_hash_map {
     int save_hash_val;
 };
 
-typedef struct sdr_abs_hmap_init_args {
+typedef struct sdr_attr_designated_init sdr_abs_hmap_init_args {
     SdrAbsHMapInitArgsField;
 } SdrAbsHMapInitArgs;
 

@@ -9,6 +9,7 @@
 #include "map.h"
 #include "hash.h"
 #include "abs_hash_map.h"
+#include "compiler_attr.h"
 #include <string.h>
 
 #define SDR_HMAP_DFLT_LOAD_FACTOR 0.75
@@ -38,7 +39,7 @@ typedef struct sdr_hash_map_iter {
  * HashMapInitArgs extends from AbsHMapInitArgs:
  * use the same field order to ensure the safe cast operation
  */
-typedef struct sdr_hash_map_init_args {
+typedef struct sdr_attr_designated_init sdr_hash_map_init_args {
     SdrAbsHMapInitArgsField;
     double load_factor;
 } SdrHashMapInitArgs;

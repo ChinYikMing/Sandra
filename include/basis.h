@@ -10,11 +10,6 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#if !defined(__printflike) && defined(GCC_VERSION)
-#define __printflike(fmtarg, firstvararg) \
-            __attribute__((__format__ (__printf__, fmtarg, firstvararg)))
-#endif
-
 #ifndef SDR_PRAGMA
 #define SDR_PRAGMA(x) _Pragma(#x)
 #endif

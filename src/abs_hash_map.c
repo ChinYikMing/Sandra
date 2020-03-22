@@ -3,7 +3,6 @@
 //
 
 #include <abs_hash_map.h>
-#include "map.h"
 #include <stdlib.h>
 
 int sdr_abs_hmap_init(SdrAbsHashMap *map, SdrAbsHMapInitArgs *args) {
