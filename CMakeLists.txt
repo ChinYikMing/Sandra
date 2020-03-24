@@ -29,19 +29,20 @@ endif ()
 # ============== PROJECT DEPENDENCIES ==============
 set(SANDRA_INC_DIR include)
 set(SANDRA_INC
-        include/version.h
-        include/vector.h
-        include/hash_map.h
-        include/map.h
-        include/abs_hash_map.h
-        include/hash.h
-        include/basis.h
-        include/sgr.h
-        include/strbuf.h
-        include/size.h
-        include/embed_list.h
-        include/list.h
-        include/compiler_attr.h)
+        include/sandra/version.h
+        include/sandra/vector.h
+        include/sandra/hash_map.h
+        include/sandra/map.h
+        include/sandra/abs_hash_map.h
+        include/sandra/hash.h
+        include/sandra/basis.h
+        include/sandra/sgr.h
+        include/sandra/strbuf.h
+        include/sandra/size.h
+        include/sandra/embed_list.h
+        include/sandra/list.h
+        include/sandra/compiler_attr.h
+        include/sandra/str.h)
 
 set(SANDRA_SRC_DIR src)
 set(SANDRA_SRC
@@ -53,7 +54,7 @@ set(SANDRA_SRC
 set(MUST_PREFIX_PATTERN
         "sdr_version|SDR_VERSION|SDR_VER_MAJOR|SDR_VER_MINOR|SDR_VER_PATCH")
 
-set(SANDRA_CONFIG_FILES include/version.h)
+set(SANDRA_CONFIG_FILES include/sandra/version.h)
 foreach (cf ${SANDRA_CONFIG_FILES})
     configure_file(${cf}.in ${cf})
 endforeach ()
@@ -107,8 +108,6 @@ endif ()
 
 
 # ================ INSTALL LIBRARY =================
-set(INC_INSTALL_RELATIVE_DIR "include/sandra")
-
 install(TARGETS sandra sandra_static
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
@@ -118,12 +117,12 @@ if (USE_PREFIX)
     install(DIRECTORY
             ${CMAKE_CURRENT_SOURCE_DIR}/${SANDRA_INC_DIR}/
             ${CMAKE_CURRENT_BINARY_DIR}/${SANDRA_INC_DIR}/
-            DESTINATION ${INC_INSTALL_RELATIVE_DIR}
+            DESTINATION include
             FILES_MATCHING PATTERN "*.h")
 else ()
     install(DIRECTORY
             ${CMAKE_CURRENT_BINARY_DIR}/${SANDRA_INC_DIR}/
-            DESTINATION ${INC_INSTALL_RELATIVE_DIR}
+            DESTINATION include
             FILES_MATCHING PATTERN "*.h")
 endif ()
 # ==================================================
@@ -132,7 +131,7 @@ endif ()
 # =============== UNINSTALL LIBRARY ================
 add_custom_target(uninstall
         COMMAND xargs rm < install_manifest.txt
-        && rmdir ${CMAKE_INSTALL_PREFIX}/${INC_INSTALL_RELATIVE_DIR})
+        && rmdir ${CMAKE_INSTALL_PREFIX}/include/sandra)
 # ==================================================
 
 

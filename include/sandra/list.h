@@ -58,17 +58,17 @@ static inline SdrList *sdr_list_pop_back(SdrList *list) {
 }
 
 #define sdr_list_entry(list, idx) ({ \
-    SdrEmbedList *m_le_curr = sdr_elist_entry(&(list)->node, idx); \
+    SdrEList *m_le_curr = sdr_elist_entry(&(list)->node, idx); \
     (m_le_curr) ? sdr_elist_data(m_le_curr, SdrList, node) : NULL; \
 })
 
 #define sdr_list_first(list) ({ \
-    SdrEmbedList *m_lf_ret = sdr_list_first(&(list)->node); \
+    SdrEList *m_lf_ret = sdr_list_first(&(list)->node); \
     (m_lf_ret) ? sdr_elist_data(m_lf_ret, SdrList, node) : NULL; \
 })
 
 #define sdr_list_last(list) ({ \
-    SdrEmbedList *m_ll_ret = sdr_list_last(&(list)->node); \
+    SdrEList *m_ll_ret = sdr_list_last(&(list)->node); \
     (m_ll_ret) ? sdr_elist_data(m_ll_ret, SdrList, node) : NULL; \
 })
 

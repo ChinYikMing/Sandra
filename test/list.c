@@ -3,7 +3,7 @@
 //
 
 #include <criterion/criterion.h>
-#include <list.h>
+#include <sandra/list.h>
 
 #define D(x) \
     sdr_elist_data(x, SdrList, node)

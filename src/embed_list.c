@@ -1,7 +1,9 @@
 //
 // Created by Jason Zheng on 2020/3/21.
 //
-#include <embed_list.h>
+#include <sandra/embed_list.h>
+
+#define SDR_ELIST_MERGE_ARR_SIZE (CHAR_BIT * sizeof(size_t))
 
 int sdr_elist_insert(SdrEList *list, SdrEList *new, long idx) {
     if (idx == 0) {
@@ -70,4 +72,104 @@ SdrEList *sdr_elist_splice_d(SdrEList *list, long start, size_t delete_cnt,
         sdr_pvt_elist_splice(splice_prev, splice_next, head, tail);
 
     return deleted_start;
+}
+
+void sdr_elist_sort(SdrEList *list, sdr_fn_elist_cmp cmp, void *data) {
+    SdrEList *list_head = list;
+    list = list->next;
+    /* no need to sort */
+    if (list_head->prev == list) return;
+
+    /* convert to null-terminated list */
+    list_head->prev->next = NULL;
+
+    /* save sorted lists in k, each list length is 2^k */
+    SdrEList *merged[SDR_ELIST_MERGE_ARR_SIZE] = {0};
+
+    /* simple bottom-up merge sort implementation */
+    size_t level = 0, max_level = 0;
+    SdrEList *a, *b = NULL, *next = list;
+    while (next) {
+        b = next;
+        next = b->next;
+        b->next = NULL;
+
+        level = 0;
+        while ((a = merged[level])) {
+            SdrEList *head, **tail = &head;
+            for (;;) {
+                if (cmp(a, b, data) <= 0) {
+                    *tail = a;
+                    tail = &a->next;
+                    a = a->next;
+                    if (!a) {
+                        *tail = b;
+                        break;
+                    }
+                } else {
+                    *tail = b;
+                    tail = &b->next;
+                    b = b->next;
+                    if (!b) {
+                        *tail = a;
+                        break;
+                    }
+                }
+            }
+            merged[level] = NULL;
+            b = head;
+            if (++level > max_level)
+                max_level = level;
+        }
+        merged[level] = b;
+    }
+
+    /* merge the remaining nodes */
+    if (level + 1 <= max_level) {
+        do {
+            level++;
+        } while (!merged[level]);
+
+        while (level <= max_level) {
+            if ((a = merged[level])) {
+                SdrEList *head, **tail = &head;
+                for (;;) {
+                    if (cmp(a, b, data) <= 0) {
+                        *tail = a;
+                        tail = &a->next;
+                        a = a->next;
+                        if (!a) {
+                            *tail = b;
+                            break;
+                        }
+                    } else {
+                        *tail = b;
+                        tail = &b->next;
+                        b = b->next;
+                        if (!b) {
+                            *tail = a;
+                            break;
+                        }
+                    }
+                }
+                merged[level] = NULL;
+                b = head;
+            }
+            /* no update max_level */
+            level++;
+        }
+        merged[level] = b;
+    }
+
+    /* convert to original doubly linked list */
+    SdrEList *curr = list_head;
+    next = merged[level];
+    list_head->next = next;
+    while (next) {
+        next->prev = curr;
+        curr = next;
+        next = next->next;
+    }
+    curr->next = list_head;
+    list_head->prev = curr;
 }

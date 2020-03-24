@@ -3,7 +3,7 @@
 //
 
 #include <criterion/criterion.h>
-#include <embed_list.h>
+#include <sandra/embed_list.h>
 
 Test(init, point_to_self) {
     SDR_DEFINE_ELIST(list);
@@ -146,7 +146,7 @@ Test(remove, remove_node_by_index) {
     int ret = sdr_elist_remove(&list, 2);
     cr_assert(ret == 0);
     cr_assert(sdr_elist_size(&list) == 3);
-    cr_assert(sdr_elist_entry(&list, 0) == nodes );
+    cr_assert(sdr_elist_entry(&list, 0) == nodes);
     cr_assert(sdr_elist_entry(&list, 1) == nodes + 1);
     cr_assert(sdr_elist_entry(&list, 2) == nodes + 3);
 }
@@ -293,7 +293,6 @@ Test(splice, remove_1_element_at_index_2_and_insert_trumpet) {
 }
 
 Test(splice, remove_2_elements_from_index_0_and_insert_parrot_anemone_and_blue) {
-
     SDR_DEFINE_ELIST(list);
     Fish fishes[] = {
         {"angel"},
@@ -326,7 +325,6 @@ Test(splice, remove_2_elements_from_index_0_and_insert_parrot_anemone_and_blue) 
 }
 
 Test(splice, remove_2_elements_from_index_2) {
-
     SDR_DEFINE_ELIST(list);
     Fish fishes[] = {
         {"parrot"},
@@ -352,7 +350,6 @@ Test(splice, remove_2_elements_from_index_2) {
 }
 
 Test(splice, remove_1_element_from_negative_index_2) {
-
     SDR_DEFINE_ELIST(list);
     Fish fishes[] = {
         {"angel"},

@@ -9,14 +9,18 @@ set(TESTING_NAMES
         vector
         hash_map
         embed_list
-        list)
+        list
+        numgen
+        list_sort)
+set(TESTING_UTILS
+        utils/test_num.h
+        utils/test_num.c)
 
 foreach (t ${TESTING_NAMES})
-    add_executable(test-${t} ${t}.c)
-    target_link_libraries(test-${t} sandra ${CRITERION_LIB})
+    add_executable(test-${t} ${t}.c ${TESTING_UTILS})
+    target_link_libraries(test-${t} sandra_static ${CRITERION_LIB})
     add_test(test-${t} test-${t})
 endforeach ()
 
 add_executable(tdd tdd.c)
 target_link_libraries(tdd sandra)
-

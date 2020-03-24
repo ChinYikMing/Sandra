@@ -54,6 +54,16 @@
 })
 #endif
 
+#ifndef sdr_likely
+#define sdr_likely(x) \
+    __builtin_expect(!!(x), 1)
+#endif
+
+#ifndef sdr_unlikely
+#define sdr_unlikely(x) \
+    __builtin_expect(!!(x), 0)
+#endif
+
 #ifdef _SC_PAGESIZE
 #define SDR_GET_PAGE_SIZE() sysconf(_SC_PAGESIZE)
 #else
@@ -75,7 +85,6 @@
     __builtin_types_compatible_p(typeof(a), char *)
 #endif
 
-
 #ifndef SDR_IS_ARRAY
 #define SDR_IS_ARRAY(a) \
     !SDR_IS_SAME_TYPE((a), &(a)[0])
@@ -96,6 +105,7 @@
  * gclz - Returns the number of leading 0-bits in x, starting at the
  *       most significant bit position. If x is 0, the result is -1.
  */
+#ifndef sdr_gclz
 #define sdr_gclz(x) ({ \
     int m_clz_ret = -1; \
     __auto_type m_clz_num = (x); \
@@ -112,12 +122,14 @@
     } \
     m_clz_ret;\
 })
+#endif
 
 /**
  * gffs - Returns one plus the index of the least significant 1-bit of x,
  *        or if x is zero, returns zero.
  *
  */
+#ifndef sdr_gffs
 #define sdr_gffs(x) ({ \
     int m_ffs_ret = -1; \
     __auto_type m_ffs_num = (x); \
@@ -132,11 +144,13 @@
     } \
     m_ffs_ret;\
 })
+#endif
 
 /**
  * get_bits - get n bits from position p (lsb: 0)
  *            if (n > p + 1), the behavior is undefined.
  */
+#ifndef sdr_get_bits
 #define sdr_get_bits(x, p, n) ({ \
     typeof(x) m_gb_ret; \
     typeof(x) m_x = (x); \
@@ -145,14 +159,17 @@
     m_gb_ret = (m_x >> (m_p + 1 - m_n)) & ~(~((typeof(x)) 0) << m_n); \
     m_gb_ret; \
 })
+#endif
 
 /**
  * ursb - unsets the rightmost set bit of x
  */
+#ifndef sdr_ursb
 #define sdr_ursb(x) ({ \
     __auto_type m_num = (x); \
     m_num & (m_num - 1); \
 })
+#endif
 
 #ifndef sdr_is_pow_of_two
 #define sdr_is_pow_of_two(x) ({ \
