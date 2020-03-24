@@ -39,10 +39,12 @@ typedef struct sdr_hash_map_iter {
  * HashMapInitArgs extends from AbsHMapInitArgs:
  * use the same field order to ensure the safe cast operation
  */
+SDR_SUPPRESS_WARN("-Wunknown-attributes")
 typedef struct sdr_attr_designated_init sdr_hash_map_init_args {
     SdrAbsHMapInitArgsField;
     double load_factor;
 } SdrHashMapInitArgs;
+SDR_SUPPRESS_WARN_END
 
 #define sdr_hash_map_init(map, ...) ({ \
 SDR_SUPPRESS_WARN("-Winitializer-overrides") \

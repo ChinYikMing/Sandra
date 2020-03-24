@@ -113,6 +113,7 @@ int sdr_elist_remove(SdrEList *list, long idx);
 
 void sdr_elist_sort(SdrEList *list, sdr_fn_elist_cmp cmp, void *data);
 
+
 /* ========= SECURE API ========= */
 static inline int sdr_elist_push_front_s(SdrEList *list, SdrEList *new) {
     if (list == new) return -1;

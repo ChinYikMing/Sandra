@@ -33,9 +33,11 @@ struct sdr_abs_hash_map {
     int save_hash_val;
 };
 
+SDR_SUPPRESS_WARN("-Wunknown-attributes")
 typedef struct sdr_attr_designated_init sdr_abs_hmap_init_args {
     SdrAbsHMapInitArgsField;
 } SdrAbsHMapInitArgs;
+SDR_SUPPRESS_WARN_END
 
 int sdr_abs_hmap_init(SdrAbsHashMap *map, SdrAbsHMapInitArgs *args);
 

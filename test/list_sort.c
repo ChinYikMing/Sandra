@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     int bin_mode = 1;
     int progressive_test = 0;
     int file_mode = 0;
-    int num_range = UINT16_MAX;
+    int num_range = INT_MAX;
     size_t test_size = DFLT_TEST_SIZE, test_cnt = 1;
     char *filename = NULL;
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
                 sdr_str_to_long(optarg, test_cnt);
                 break;
             default:
-                fprintf(stderr, "Usage: %s [-v] [-t] filename\n", argv[0]);
+                fprintf(stderr, "Usage: %s [options]\n", argv[0]);
                 exit(EXIT_FAILURE);
         }
     }
@@ -101,18 +101,23 @@ int main(int argc, char *argv[]) {
         }
 
         tnums_sort(&tnums, 1);
+
         sdr_elist_sort(&list, user_cmp, NULL);
-        i = 0;
         if (verbose) {
             printf("%*s", 12, "");
             printf("a: ");
         }
-        tnums_for(&tnums, num) {
-            User *u = sdr_elist_get(&list, i, User, list);
-            assert(u->id == num);
+
+        i = 0;
+        SdrEList *eptr = list.next;
+        while ((eptr != &list)) {
+            User *eu = sdr_elist_data(eptr, User, list);
+            num = tnums.values[i];
+            assert(eu->id == num);
             if (verbose)
                 printf("%d ", num);
             i++;
+            eptr = eptr->next;
         }
         if (verbose)
             printf("\n");

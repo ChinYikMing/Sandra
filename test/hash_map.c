@@ -4,6 +4,7 @@
 
 #include <criterion/criterion.h>
 #include <sandra/hash_map.h>
+#include <stdint.h>
 
 Test(HashMap, init) {
     {
@@ -392,20 +393,20 @@ Test(HashMap, char_int) {
 
     /* replace */
     cr_assert(sdr_hash_map_ctx(&m)->size == delim_size);
-    cr_assert(sdr_hash_map_put(&m, (void *) '.', (void *) 10) == 0);
+    cr_assert(sdr_hash_map_put(&m, (void *) '.', (void *) (intptr_t) 10) == 0);
     cr_assert(sdr_hash_map_ctx(&m)->size == delim_size);
-    cr_assert(sdr_hash_map_put(&m, (void *) ',', (void *) 20) == (void *) 1);
+    cr_assert(sdr_hash_map_put(&m, (void *) ',', (void *) (intptr_t) 20) == (void *) (intptr_t) 1);
     cr_assert(sdr_hash_map_ctx(&m)->size == delim_size);
-    cr_assert(sdr_hash_map_put(&m, (void *) '-', (void *) 30) == (void *) 2);
+    cr_assert(sdr_hash_map_put(&m, (void *) '-', (void *) (intptr_t) 30) == (void *) (intptr_t) 2);
     cr_assert(sdr_hash_map_ctx(&m)->size == delim_size);
 
     /* get */
     cr_assert(sdr_hash_map_get(&m, (void *) ('a')) == NULL);
     cr_assert(sdr_hash_map_get(&m, (void *) ('b')) == NULL);
     cr_assert(sdr_hash_map_get(&m, (void *) ('c')) == NULL);
-    cr_assert(sdr_hash_map_get(&m, (void *) ('.')) == (void *) 10);
-    cr_assert(sdr_hash_map_get(&m, (void *) (',')) == (void *) 20);
-    cr_assert(sdr_hash_map_get(&m, (void *) ('-')) == (void *) 30);
+    cr_assert(sdr_hash_map_get(&m, (void *) ('.')) == (void *) (intptr_t) 10);
+    cr_assert(sdr_hash_map_get(&m, (void *) (',')) == (void *) (intptr_t) 20);
+    cr_assert(sdr_hash_map_get(&m, (void *) ('-')) == (void *) (intptr_t) 30);
 
     /* remove */
     cr_assert(sdr_hash_map_remove(&m, (void *) '@') < 0);
@@ -455,15 +456,15 @@ Test(HashMap, pchar_key) {
     *test_key = '.';
     cr_assert(pchar_cmp(delimiter, test_key) == 0);
     cr_assert(sdr_hash_map_ctx(&m)->size == size);
-    cr_assert(sdr_hash_map_put(&m, test_key, (void *) 10) == 0);
+    cr_assert(sdr_hash_map_put(&m, test_key, (void *) (intptr_t) 10) == 0);
     cr_assert(sdr_hash_map_ctx(&m)->size == size);
 
     *test_key = ',';
-    cr_assert(sdr_hash_map_put(&m, test_key, (void *) 20) == (void *) 1);
+    cr_assert(sdr_hash_map_put(&m, test_key, (void *) (intptr_t) 20) == (void *) (intptr_t) 1);
     cr_assert(sdr_hash_map_ctx(&m)->size == size);
 
     *test_key = '-';
-    cr_assert(sdr_hash_map_put(&m, test_key, (void *) 30) == (void *) 2);
+    cr_assert(sdr_hash_map_put(&m, test_key, (void *) (intptr_t) 30) == (void *) (intptr_t) 2);
     cr_assert(sdr_hash_map_ctx(&m)->size == size);
 
     /* get */
@@ -474,11 +475,11 @@ Test(HashMap, pchar_key) {
     *test_key = 'c';
     cr_assert(sdr_hash_map_get(&m, test_key) == NULL);
     *test_key = '.';
-    cr_assert(sdr_hash_map_get(&m, test_key) == (void *) 10);
+    cr_assert(sdr_hash_map_get(&m, test_key) == (void *) (intptr_t) 10);
     *test_key = ',';
-    cr_assert(sdr_hash_map_get(&m, test_key) == (void *) 20);
+    cr_assert(sdr_hash_map_get(&m, test_key) == (void *) (intptr_t) 20);
     *test_key = '-';
-    cr_assert(sdr_hash_map_get(&m, test_key) == (void *) 30);
+    cr_assert(sdr_hash_map_get(&m, test_key) == (void *) (intptr_t) 30);
 
     /* remove */
     sdr_hash_map_ctx(&m)->free_key = free;
@@ -524,32 +525,32 @@ Test(HashMap, int_int) {
 
     /* replace */
     cr_assert(sdr_hash_map_ctx(&m)->size == size);
-    cr_assert(sdr_hash_map_put(&m, (void *) 94, (void *) 10) == 0);
+    cr_assert(sdr_hash_map_put(&m, (void *) (intptr_t) 94, (void *) (intptr_t) 10) == 0);
     cr_assert(sdr_hash_map_ctx(&m)->size == size);
-    cr_assert(sdr_hash_map_put(&m, (void *) 87, (void *) 20) == (void *) 1);
+    cr_assert(sdr_hash_map_put(&m, (void *) (intptr_t) 87, (void *) (intptr_t) 20) == (void *) (intptr_t) 1);
     cr_assert(sdr_hash_map_ctx(&m)->size == size);
-    cr_assert(sdr_hash_map_put(&m, (void *) 666, (void *) 30) == (void *) 2);
+    cr_assert(sdr_hash_map_put(&m, (void *) (intptr_t) 666, (void *) (intptr_t) 30) == (void *) (intptr_t) 2);
     cr_assert(sdr_hash_map_ctx(&m)->size == size);
 
     /* get */
-    cr_assert(sdr_hash_map_get(&m, (void *) 1) == NULL);
-    cr_assert(sdr_hash_map_get(&m, (void *) 2) == NULL);
-    cr_assert(sdr_hash_map_get(&m, (void *) 3) == NULL);
-    cr_assert(sdr_hash_map_get(&m, (void *) 94) == (void *) 10);
-    cr_assert(sdr_hash_map_get(&m, (void *) 87) == (void *) 20);
-    cr_assert(sdr_hash_map_get(&m, (void *) 666) == (void *) 30);
+    cr_assert(sdr_hash_map_get(&m, (void *) (intptr_t) 1) == NULL);
+    cr_assert(sdr_hash_map_get(&m, (void *) (intptr_t) 2) == NULL);
+    cr_assert(sdr_hash_map_get(&m, (void *) (intptr_t) 3) == NULL);
+    cr_assert(sdr_hash_map_get(&m, (void *) (intptr_t) 94) == (void *) (intptr_t) 10);
+    cr_assert(sdr_hash_map_get(&m, (void *) (intptr_t) 87) == (void *) (intptr_t) 20);
+    cr_assert(sdr_hash_map_get(&m, (void *) (intptr_t) 666) == (void *) (intptr_t) 30);
 
     /* remove */
-    cr_assert(sdr_hash_map_remove(&m, (void *) 1024) < 0);
+    cr_assert(sdr_hash_map_remove(&m, (void *) (intptr_t) 1024) < 0);
     cr_assert(sdr_hash_map_ctx(&m)->size == size);
 
-    cr_assert(sdr_hash_map_remove(&m, (void *) 94) == 0);
+    cr_assert(sdr_hash_map_remove(&m, (void *) (intptr_t) 94) == 0);
     cr_assert(sdr_hash_map_ctx(&m)->size == size - 1);
 
-    cr_assert(sdr_hash_map_remove(&m, (void *) 87) == 0);
+    cr_assert(sdr_hash_map_remove(&m, (void *) (intptr_t) 87) == 0);
     cr_assert(sdr_hash_map_ctx(&m)->size == size - 2);
 
-    cr_assert(sdr_hash_map_remove(&m, (void *) 666) == 0);
+    cr_assert(sdr_hash_map_remove(&m, (void *) (intptr_t) 666) == 0);
     cr_assert(sdr_hash_map_ctx(&m)->size == size - 3);
 
     sdr_hash_map_destroy(&m);
@@ -558,10 +559,10 @@ Test(HashMap, int_int) {
 Test(HashMap, foreach) {
     SDR_DEFINE_HASH_MAP(m);
 
-    sdr_hash_map_put(&m, "Sheep", (void *) 1);
-    sdr_hash_map_put(&m, "Jason", (void *) 2);
-    sdr_hash_map_put(&m, "Lily", (void *) 3);
-    sdr_hash_map_put(&m, "WanWan", (void *) 4);
+    sdr_hash_map_put(&m, "Sheep", (void *) (intptr_t) 1);
+    sdr_hash_map_put(&m, "Jason", (void *) (intptr_t) 2);
+    sdr_hash_map_put(&m, "Lily", (void *) (intptr_t) 3);
+    sdr_hash_map_put(&m, "WanWan", (void *) (intptr_t) 4);
 
 
     SdrMapEntry *ptr;
@@ -570,14 +571,11 @@ Test(HashMap, foreach) {
         char *name = ptr->key;
         if (!strcmp(name, "Sheep")) {
             cr_assert((int) ptr->value == 1);
-        }
-        else if (!strcmp(name, "Jason")) {
+        } else if (!strcmp(name, "Jason")) {
             cr_assert((int) ptr->value == 2);
-        }
-        else if (!strcmp(name, "Lily")) {
+        } else if (!strcmp(name, "Lily")) {
             cr_assert((int) ptr->value == 3);
-        }
-        else if (!strcmp(name, "WanWan")) {
+        } else if (!strcmp(name, "WanWan")) {
             cr_assert((int) ptr->value == 4);
         } else {
             cr_assert_fail("hash_map_for_s error");
