@@ -30,13 +30,13 @@ static inline int sdr_list_pvt_cmp(SdrEList *e1, SdrEList *e2, void *arg) {
     SdrList m_name; \
     sdr_list_init(&m_name)
 
-#define SDR_DEFINE_LIST_NODE(m_name, m_data) \
+#define SDR_DEFINE_LIST_ENTRY(m_name, m_data) \
     SdrList m_name; \
     m_name.data = m_data;
 
 
 /* ================= PUBLIC METHODS ================= */
-static inline SdrList *sdr_list_new_node(void *data) {
+static inline SdrList *sdr_list_new_entry(void *data) {
     SdrList *tmp = malloc(sizeof(SdrList));
     if (!tmp) return NULL;
     tmp->data = data;
@@ -47,20 +47,40 @@ static inline void sdr_list_init(SdrList *list) {
     sdr_elist_init(&list->node);
 }
 
+static inline void sdr_list_remove_entry(SdrList *entry) {
+    sdr_elist_remove_entry(&entry->node);
+}
+
+static inline void sdr_list_remove_entry_s(SdrList *entry) {
+    if (!entry) return;
+    sdr_elist_remove_entry_s(&entry->node);
+}
+
 static inline void sdr_list_push_front(SdrList *list, SdrList *new) {
     sdr_elist_push_front(&list->node, &new->node);
+}
+
+static inline int sdr_list_push_front_s(SdrList *list, SdrList *new) {
+    if (!list || !new) return -1;
+    return sdr_elist_push_front_s(&list->node, &new->node);
 }
 
 static inline void sdr_list_push_back(SdrList *list, SdrList *new) {
     sdr_elist_push_back(&list->node, &new->node);
 }
 
-static inline void sdr_list_remove_entry(SdrList *entry) {
-    sdr_elist_remove_entry(&entry->node);
+static inline int sdr_list_push_back_s(SdrList *list, SdrList *new) {
+    if (!list || !new) return -1;
+    return sdr_elist_push_back_s(&list->node, &new->node);
 }
 
 static inline SdrList *sdr_list_pop_front(SdrList *list) {
     SdrEList *ret = sdr_elist_pop_front(&list->node);
+    return ret ? sdr_elist_data(ret, SdrList, node) : NULL;
+}
+
+static inline SdrList *sdr_list_pop_front_s(SdrList *list) {
+    SdrEList *ret = sdr_elist_pop_front_s(&list->node);
     return ret ? sdr_elist_data(ret, SdrList, node) : NULL;
 }
 
@@ -69,20 +89,37 @@ static inline SdrList *sdr_list_pop_back(SdrList *list) {
     return ret ? sdr_elist_data(ret, SdrList, node) : NULL;
 }
 
+static inline SdrList *sdr_list_pop_back_s(SdrList *list) {
+    SdrEList *ret = sdr_elist_pop_back_s(&list->node);
+    return ret ? sdr_elist_data(ret, SdrList, node) : NULL;
+}
+
 static inline void sdr_list_replace(SdrList *old, SdrList *new) {
     sdr_elist_replace(&old->node, &new->node);
+}
+
+static inline void sdr_list_replace_s(SdrList *old, SdrList *new) {
+    sdr_elist_replace_s(&old->node, &new->node);
 }
 
 static inline void sdr_list_swap(SdrList *e1, SdrList *e2) {
     sdr_elist_swap(&e1->node, &e2->node);
 }
 
-static inline int sdr_list_insert(SdrList *list, SdrList *new, size_t idx) {
+static inline int sdr_list_insert(SdrList *list, SdrList *new, long idx) {
     return sdr_elist_insert(&list->node, &new->node, idx);
 }
 
-static inline void sdr_list_remove(SdrList *node) {
-    sdr_elist_remove_entry(&node->node);
+static inline int sdr_list_insert_s(SdrList *list, SdrList *new, long idx) {
+    return sdr_elist_insert_s(&list->node, &new->node, idx);
+}
+
+static inline void sdr_list_remove(SdrList *node, long idx) {
+    sdr_elist_remove(&node->node, idx);
+}
+
+static inline void sdr_list_remove_s(SdrList *node, long idx) {
+    sdr_elist_remove_s(&node->node, idx);
 }
 
 static inline void sdr_list_sort(SdrList *list, sdr_fn_list_cmp cmp, void *data) {
@@ -90,44 +127,6 @@ static inline void sdr_list_sort(SdrList *list, sdr_fn_list_cmp cmp, void *data)
         .cmp = cmp,
         .data = data
     });
-}
-
-
-/* ========= SECURE API ========= */
-static inline int sdr_list_push_front_s(SdrList *list, SdrList *new) {
-    if (!list || !new) return -1;
-    return sdr_elist_push_front_s(&list->node, &new->node);
-}
-
-static inline int sdr_list_push_back_s(SdrList *list, SdrList *new) {
-    if (!list || !new) return -1;
-    return sdr_elist_push_back_s(&list->node, &new->node);
-}
-
-static inline void sdr_list_remove_entry_s(SdrList *entry) {
-    if (!entry) return;
-    sdr_elist_remove_entry_s(&entry->node);
-}
-
-static inline SdrList *sdr_list_pop_front_s(SdrList *list) {
-    if (!list) return NULL;
-    SdrEList *ret = sdr_elist_pop_front_s(&list->node);
-    return ret ? sdr_elist_data(ret, SdrList, node) : NULL;
-}
-
-static inline SdrList *sdr_list_pop_back_s(SdrList *list) {
-    if (!list) return NULL;
-    SdrEList *ret = sdr_elist_pop_back_s(&list->node);
-    return ret ? sdr_elist_data(ret, SdrList, node) : NULL;
-}
-
-int sdr_list_remove_s(SdrList *list, long idx) {
-    return sdr_elist_remove_s(&list->node, idx);
-}
-
-static inline void sdr_list_replace_s(SdrList *old, SdrList *new) {
-    if (old == new) return;
-    sdr_elist_replace(&old->node, &new->node);
 }
 
 
@@ -151,15 +150,28 @@ static inline void sdr_list_bulk_push_front(SdrList *list, SdrList *head, SdrLis
     sdr_elist_bulk_push_front(&list->node, &head->node, &tail->node);
 }
 
+static inline void sdr_list_bulk_push_front_s(SdrList *list, SdrList *head, SdrList *tail) {
+    sdr_elist_bulk_push_front_s(&list->node, &head->node, &tail->node);
+}
+
 static inline void sdr_list_bulk_push_back(SdrList *list, SdrList *head, SdrList *tail) {
     sdr_elist_bulk_push_back(&list->node, &head->node, &tail->node);
+}
+
+static inline void sdr_list_bulk_push_back_s(SdrList *list, SdrList *head, SdrList *tail) {
+    sdr_elist_bulk_push_back_s(&list->node, &head->node, &tail->node);
 }
 
 int sdr_list_bulk_insert(SdrList *list, SdrList *first, SdrList *last, long idx) {
     return sdr_elist_bulk_insert(&list->node, &first->node, &last->node, idx);
 }
 
+int sdr_list_bulk_insert_s(SdrList *list, SdrList *first, SdrList *last, long idx) {
+    return sdr_elist_bulk_insert_s(&list->node, &first->node, &last->node, idx);
+}
 
+
+/* ==== FUNCTION-LIKE MACROS ==== */
 #define sdr_list_entry(list, idx) ({ \
     SdrEList *m_le_curr = sdr_elist_entry(&(list)->node, idx); \
     (m_le_curr) ? sdr_elist_data(m_le_curr, SdrList, node) : NULL; \

@@ -17,6 +17,18 @@ int sdr_elist_insert(SdrEList *list, SdrEList *new, long idx) {
     return 0;
 }
 
+int sdr_elist_insert_s(SdrEList *list, SdrEList *new, long idx) {
+    if (idx == 0) {
+        sdr_elist_push_front_s(list, new);
+        return 0;
+    }
+
+    SdrEList *entry = sdr_elist_entry(list, idx);
+    if (!entry) return -1;
+    sdr_pvt_elist_add_s(entry->prev, entry, new);
+    return 0;
+}
+
 int sdr_elist_bulk_insert(SdrEList *list, SdrEList *first, SdrEList *last, long idx) {
     if (idx == 0) {
         sdr_elist_bulk_push_front(list, first, last);
@@ -26,6 +38,18 @@ int sdr_elist_bulk_insert(SdrEList *list, SdrEList *first, SdrEList *last, long 
     SdrEList *entry = sdr_elist_entry(list, idx);
     if (!entry) return -1;
     sdr_pvt_elist_splice(entry->prev, entry, first, last);
+    return 0;
+}
+
+int sdr_elist_bulk_insert_s(SdrEList *list, SdrEList *first, SdrEList *last, long idx) {
+    if (idx == 0) {
+        sdr_elist_bulk_push_front_s(list, first, last);
+        return 0;
+    }
+
+    SdrEList *entry = sdr_elist_entry(list, idx);
+    if (!entry) return -1;
+    sdr_pvt_elist_splice_s(entry->prev, entry, first, last);
     return 0;
 }
 
@@ -62,7 +86,7 @@ SdrEList *sdr_elist_splice_d(SdrEList *list, long start, size_t delete_cnt,
             curr_idx++, deleted_end = deleted_end->next;
         splice_prev = deleted_start->prev;
         splice_next = deleted_end->next;
-        sdr_pvt_elist_bulk_remove_s(splice_prev, splice_next);
+        sdr_pvt_elist_remove_s(splice_prev, splice_next);
     } else {
         splice_prev = target->prev;
         splice_next = target;

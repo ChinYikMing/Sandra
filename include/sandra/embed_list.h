@@ -24,11 +24,30 @@ typedef int (*sdr_fn_elist_cmp)(SdrEList *e1, SdrEList *e2, void *arg);
 
 /* ================ PRIVATE METHODS ================= */
 sdr_attr_always_inline
+static inline void sdr_pvt_elist_remove(SdrEList *prev, SdrEList *next) {
+    prev->next = next;
+    next->prev = prev;
+}
+
+sdr_attr_always_inline
+static inline void sdr_pvt_elist_remove_s(SdrEList *prev, SdrEList *next) {
+    prev->next->prev = next->prev;
+    next->prev->next = prev->next;
+    sdr_pvt_elist_remove(prev, next);
+}
+
+sdr_attr_always_inline
 static inline void sdr_pvt_elist_add(SdrEList *prev, SdrEList *next, SdrEList *new) {
     prev->next = new;
     new->prev = prev;
     next->prev = new;
     new->next = next;
+}
+
+sdr_attr_always_inline
+static inline void sdr_pvt_elist_add_s(SdrEList *prev, SdrEList *next, SdrEList *new) {
+    sdr_pvt_elist_remove(new->prev, new->next);
+    sdr_pvt_elist_add(prev, next, new);
 }
 
 sdr_attr_always_inline
@@ -41,22 +60,10 @@ static inline void sdr_pvt_elist_splice(SdrEList *prev, SdrEList *next,
 }
 
 sdr_attr_always_inline
-static inline void sdr_pvt_elist_remove(SdrEList *prev, SdrEList *next) {
-    prev->next = next;
-    next->prev = prev;
-}
-
-sdr_attr_always_inline
-static inline void sdr_pvt_elist_bulk_remove(SdrEList *prev, SdrEList *next) {
-    prev->next = next;
-    next->prev = prev;
-}
-
-sdr_attr_always_inline
-static inline void sdr_pvt_elist_bulk_remove_s(SdrEList *prev, SdrEList *next) {
-    prev->next->prev = next->prev;
-    next->prev->next = prev->next;
-    sdr_pvt_elist_bulk_remove(prev, next);
+static inline void sdr_pvt_elist_splice_s(SdrEList *prev, SdrEList *next,
+                                          SdrEList *new_head, SdrEList *new_tail) {
+    sdr_pvt_elist_remove(new_head->prev, new_tail->next);
+    sdr_pvt_elist_splice(prev, next, new_head, new_tail);
 }
 
 
@@ -65,22 +72,48 @@ static inline void sdr_elist_init(SdrEList *list) {
     list->next = list->prev = list;
 }
 
+static inline void sdr_elist_remove_entry(SdrEList *entry) {
+    sdr_pvt_elist_remove(entry->prev, entry->next);
+}
+
+static inline void sdr_elist_remove_entry_s(SdrEList *entry) {
+    if (!entry) return;
+    sdr_pvt_elist_remove(entry->prev, entry->next);
+    entry->prev = entry;
+    entry->next = entry;
+}
+
 static inline void sdr_elist_push_front(SdrEList *list, SdrEList *new) {
     sdr_pvt_elist_add(list, list->next, new);
+}
+
+static inline int sdr_elist_push_front_s(SdrEList *list, SdrEList *new) {
+    if (list == new || !new) return -1;
+    sdr_pvt_elist_add_s(list, list->next, new);
+    return 0;
 }
 
 static inline void sdr_elist_push_back(SdrEList *list, SdrEList *new) {
     sdr_pvt_elist_add(list->prev, list, new);
 }
 
-static inline void sdr_elist_remove_entry(SdrEList *entry) {
-    sdr_pvt_elist_remove(entry->prev, entry->next);
+static inline int sdr_elist_push_back_s(SdrEList *list, SdrEList *new) {
+    if (list == new || !new) return -1;
+    sdr_pvt_elist_add_s(list->prev, list, new);
+    return 0;
 }
 
 static inline SdrEList *sdr_elist_pop_front(SdrEList *list) {
     SdrEList *ret = list->next;
     if (list == ret) return NULL;
     sdr_elist_remove_entry(ret);
+    return ret;
+}
+
+static inline SdrEList *sdr_elist_pop_front_s(SdrEList *list) {
+    SdrEList *ret = list->next;
+    if (list == ret) return NULL;
+    sdr_elist_remove_entry_s(ret);
     return ret;
 }
 
@@ -91,11 +124,25 @@ static inline SdrEList *sdr_elist_pop_back(SdrEList *list) {
     return ret;
 }
 
+static inline SdrEList *sdr_elist_pop_back_s(SdrEList *list) {
+    SdrEList *ret = list->prev;
+    if (list == ret) return NULL;
+    sdr_elist_remove_entry_s(ret);
+    return ret;
+}
+
 static inline void sdr_elist_replace(SdrEList *old, SdrEList *new) {
     new->prev = old->prev;
     old->prev->next = new;
     new->next = old->next;
     old->next->prev = new;
+}
+
+static inline void sdr_elist_replace_s(SdrEList *old, SdrEList *new) {
+    if (old == new || !new) return;
+    sdr_elist_replace(old, new);
+    old->prev = old;
+    old->next = old;
 }
 
 static inline void sdr_elist_swap(SdrEList *e1, SdrEList *e2) {
@@ -109,53 +156,13 @@ static inline void sdr_elist_swap(SdrEList *e1, SdrEList *e2) {
 
 int sdr_elist_insert(SdrEList *list, SdrEList *new, long idx);
 
+int sdr_elist_insert_s(SdrEList *list, SdrEList *new, long idx);
+
 int sdr_elist_remove(SdrEList *list, long idx);
-
-void sdr_elist_sort(SdrEList *list, sdr_fn_elist_cmp cmp, void *data);
-
-
-/* ========= SECURE API ========= */
-static inline int sdr_elist_push_front_s(SdrEList *list, SdrEList *new) {
-    if (list == new) return -1;
-    sdr_elist_remove_entry(new);
-    sdr_pvt_elist_add(list, list->next, new);
-    return 0;
-}
-
-static inline int sdr_elist_push_back_s(SdrEList *list, SdrEList *new) {
-    if (list == new) return -1;
-    sdr_elist_remove_entry(new);
-    sdr_pvt_elist_add(list->prev, list, new);
-    return 0;
-}
-
-static inline void sdr_elist_remove_entry_s(SdrEList *entry) {
-    sdr_elist_remove_entry(entry);
-    entry->prev = entry;
-    entry->next = entry;
-}
-
-static inline SdrEList *sdr_elist_pop_front_s(SdrEList *list) {
-    SdrEList *ret = list->next;
-    if (list == ret) return NULL;
-    sdr_elist_remove_entry_s(ret);
-    return ret;
-}
-
-static inline SdrEList *sdr_elist_pop_back_s(SdrEList *list) {
-    SdrEList *ret = list->prev;
-    if (list == ret) return NULL;
-    sdr_elist_remove_entry_s(ret);
-    return ret;
-}
 
 int sdr_elist_remove_s(SdrEList *list, long idx);
 
-static inline void sdr_elist_replace_s(SdrEList *old, SdrEList *new) {
-    sdr_elist_replace(old, new);
-    old->prev = old;
-    old->next = old;
-}
+void sdr_elist_sort(SdrEList *list, sdr_fn_elist_cmp cmp, void *data);
 
 
 /* ========== BULK API ========== */
@@ -180,11 +187,21 @@ static inline void sdr_elist_bulk_push_front(SdrEList *list, SdrEList *head, Sdr
     sdr_pvt_elist_splice(list, list->next, head, tail);
 }
 
+static inline void sdr_elist_bulk_push_front_s(SdrEList *list, SdrEList *head, SdrEList *tail) {
+    sdr_pvt_elist_splice_s(list, list->next, head, tail);
+}
+
 static inline void sdr_elist_bulk_push_back(SdrEList *list, SdrEList *head, SdrEList *tail) {
     sdr_pvt_elist_splice(list->prev, list, head, tail);
 }
 
+static inline void sdr_elist_bulk_push_back_s(SdrEList *list, SdrEList *head, SdrEList *tail) {
+    sdr_pvt_elist_splice_s(list->prev, list, head, tail);
+}
+
 int sdr_elist_bulk_insert(SdrEList *list, SdrEList *first, SdrEList *last, long idx);
+
+int sdr_elist_bulk_insert_s(SdrEList *list, SdrEList *first, SdrEList *last, long idx);
 
 
 /* ==== FUNCTION-LIKE MACROS ==== */

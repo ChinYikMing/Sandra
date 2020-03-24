@@ -77,6 +77,33 @@ Test(remove_entry, remove_last_entry) {
     cr_assert(nodes[0].next == nodes + 1);
 }
 
+
+Test(pop_front, pop_first_entry) {
+    SDR_DEFINE_ELIST(list);
+    SdrEList nodes[5];
+    sdr_elist_push_back(&list, nodes);
+    sdr_elist_push_back(&list, nodes + 1);
+    sdr_elist_push_back(&list, nodes + 2);
+
+    sdr_elist_pop_front(&list);
+    cr_assert(sdr_elist_size(&list) == 2);
+    cr_assert(list.next == nodes + 1);
+    cr_assert(nodes[1].next == nodes + 2);
+}
+
+Test(pop_back, pop_last_entry) {
+    SDR_DEFINE_ELIST(list);
+    SdrEList nodes[5];
+    sdr_elist_push_back(&list, nodes);
+    sdr_elist_push_back(&list, nodes + 1);
+    sdr_elist_push_back(&list, nodes + 2);
+
+    sdr_elist_pop_back(&list);
+    cr_assert(sdr_elist_size(&list) == 2);
+    cr_assert(list.next == nodes);
+    cr_assert(nodes[0].next == nodes + 1);
+}
+
 Test(replace, replace_with_independent_node) {
     SDR_DEFINE_ELIST(list);
     SdrEList nodes[5];
@@ -149,30 +176,6 @@ Test(remove, remove_node_by_index) {
     cr_assert(sdr_elist_entry(&list, 0) == nodes);
     cr_assert(sdr_elist_entry(&list, 1) == nodes + 1);
     cr_assert(sdr_elist_entry(&list, 2) == nodes + 3);
-}
-
-Test(get, get_data_by_index) {
-    typedef struct user {
-        int id;
-        char *name;
-        SdrEList node;
-    } User;
-
-    SDR_DEFINE_ELIST(list);
-    User users[] = {
-        {87, "Frankyu"},
-        {66, "Jason"},
-        {69, "Sheep"},
-    };
-
-    for (int i = 0; i < sizeof(users) / sizeof(users[0]); ++i) {
-        User *u = users + i;
-        sdr_elist_push_back(&list, &u->node);
-    }
-
-    cr_assert(sdr_elist_get(&list, 0, User, node) == users);
-    cr_assert(sdr_elist_get(&list, 1, User, node) == users + 1);
-    cr_assert(sdr_elist_get(&list, 2, User, node) == users + 2);
 }
 
 /* MDN splice examples */
@@ -371,4 +374,127 @@ Test(splice, remove_1_element_from_negative_index_2) {
         cr_assert(strcmp(ptr->type, expect[i]) == 0);
         i++;
     }
+}
+
+Test(bulk_push_front, push_multiple_entries_to_front) {
+    SDR_DEFINE_ELIST(list);
+    SdrEList nodes[5];
+    sdr_elist_push_back(&list, nodes);
+    sdr_elist_push_back(&list, nodes + 1);
+    sdr_elist_push_back(&list, nodes + 2);
+
+    SDR_DEFINE_ELIST(list2);
+    SdrEList others[5];
+    sdr_elist_push_back(&list2, others);
+    sdr_elist_push_back(&list2, others + 1);
+    sdr_elist_push_back(&list2, others + 2);
+    sdr_elist_push_back(&list2, others + 3);
+    sdr_elist_push_back(&list2, others + 4);
+
+    sdr_elist_bulk_push_front(&list, others + 1, others + 3);
+
+    cr_assert(list.next == others + 1);
+    cr_assert((others + 1)->next == others + 2);
+    cr_assert((others + 2)->next == others + 3);
+    cr_assert((others + 3)->next == nodes);
+    cr_assert(nodes->next == nodes + 1);
+    cr_assert((nodes + 1)->next == nodes + 2);
+}
+
+Test(bulk_push_back, push_multiple_entries_to_back) {
+    SDR_DEFINE_ELIST(list);
+    SdrEList nodes[5];
+    sdr_elist_push_back(&list, nodes);
+    sdr_elist_push_back(&list, nodes + 1);
+    sdr_elist_push_back(&list, nodes + 2);
+
+    SDR_DEFINE_ELIST(list2);
+    SdrEList others[5];
+    sdr_elist_push_back(&list2, others);
+    sdr_elist_push_back(&list2, others + 1);
+    sdr_elist_push_back(&list2, others + 2);
+    sdr_elist_push_back(&list2, others + 3);
+    sdr_elist_push_back(&list2, others + 4);
+
+    sdr_elist_bulk_push_back(&list, others + 1, others + 3);
+
+    cr_assert(list.next == nodes);
+    cr_assert(nodes->next == nodes + 1);
+    cr_assert((nodes + 1)->next == nodes + 2);
+    cr_assert((nodes + 2)->next == others + 1);
+    cr_assert((others + 1)->next == others + 2);
+    cr_assert((others + 2)->next == others + 3);
+}
+
+Test(bulk_insert, insert_multiple_entries_by_index) {
+    SDR_DEFINE_ELIST(list);
+    SdrEList nodes[5];
+    sdr_elist_push_back(&list, nodes);
+    sdr_elist_push_back(&list, nodes + 1);
+    sdr_elist_push_back(&list, nodes + 2);
+
+    SDR_DEFINE_ELIST(list2);
+    SdrEList others[5];
+    sdr_elist_push_back(&list2, others);
+    sdr_elist_push_back(&list2, others + 1);
+    sdr_elist_push_back(&list2, others + 2);
+    sdr_elist_push_back(&list2, others + 3);
+    sdr_elist_push_back(&list2, others + 4);
+
+    sdr_elist_bulk_insert(&list, others + 1, others + 3, 1);
+
+    cr_assert(list.next == nodes);
+    cr_assert(nodes->next == others + 1);
+    cr_assert((others + 1)->next == others + 2);
+    cr_assert((others + 2)->next == others + 3);
+    cr_assert((others + 3)->next == nodes + 1);
+    cr_assert((nodes + 1)->next == nodes + 2);
+}
+
+Test(get, get_data_by_index) {
+    typedef struct user {
+        int id;
+        char *name;
+        SdrEList node;
+    } User;
+
+    SDR_DEFINE_ELIST(list);
+    User users[] = {
+        {87, "Frankyu"},
+        {66, "Jason"},
+        {69, "Sheep"},
+    };
+
+    for (int i = 0; i < sizeof(users) / sizeof(users[0]); ++i) {
+        User *u = users + i;
+        sdr_elist_push_back(&list, &u->node);
+    }
+
+    cr_assert(sdr_elist_get(&list, 0, User, node) == users);
+    cr_assert(sdr_elist_get(&list, 1, User, node) == users + 1);
+    cr_assert(sdr_elist_get(&list, 2, User, node) == users + 2);
+}
+
+Test(is_emptry, true_if_only_have_dummy_head) {
+    SDR_DEFINE_ELIST(list);
+    cr_assert(sdr_elist_is_empty(&list) == 1);
+
+    SdrEList nodes[5];
+    sdr_elist_push_back(&list, nodes);
+    cr_assert(sdr_elist_is_empty(&list) == 0);
+
+    sdr_elist_remove_entry(nodes);
+    cr_assert(sdr_elist_is_empty(&list) == 1);
+}
+
+Test(is_singular, true_if_only_hava_one_actual_entry) {
+    SDR_DEFINE_ELIST(list);
+    cr_assert(sdr_elist_is_singular(&list) == 0);
+
+    SdrEList nodes[5];
+    sdr_elist_push_back(&list, nodes);
+    cr_assert(sdr_elist_is_singular(&list) == 1);
+
+    sdr_elist_push_back(&list, nodes + 1);
+    cr_assert(sdr_elist_is_singular(&list) == 0);
 }
