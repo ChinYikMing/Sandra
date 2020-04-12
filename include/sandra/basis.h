@@ -103,11 +103,11 @@
 
 /**
  * gclz - Returns the number of leading 0-bits in x, starting at the
- *       most significant bit position. If x is 0, the result is -1.
+ *       most significant bit position.
  */
 #ifndef sdr_gclz
 #define sdr_gclz(x) ({ \
-    int m_clz_ret = -1; \
+    unsigned int m_clz_ret; \
     __auto_type m_clz_num = (x); \
     const size_t m_num_size = sizeof(m_clz_num); \
     if (m_clz_num) { \
@@ -119,7 +119,9 @@
             m_clz_ret = __builtin_clzll(m_clz_num); \
         else if (m_num_size < sizeof(int)) \
             m_clz_ret = (__builtin_clz(m_clz_num) - (int) (sizeof(int) - m_num_size) * CHAR_BIT); \
-    } \
+    } else { \
+        m_clz_ret = CHAR_BIT * m_num_size; \
+    }\
     m_clz_ret;\
 })
 #endif
@@ -131,7 +133,7 @@
  */
 #ifndef sdr_gffs
 #define sdr_gffs(x) ({ \
-    int m_ffs_ret = -1; \
+    unsigned int m_ffs_ret = 0; \
     __auto_type m_ffs_num = (x); \
     const size_t m_num_size = sizeof(m_ffs_num); \
     if (m_ffs_num) { \
@@ -173,7 +175,16 @@
 
 #ifndef sdr_is_pow_of_two
 #define sdr_is_pow_of_two(x) ({ \
-    ursb(x) == 0; \
+    (x) && (sdr_ursb(x) == 0); \
+})
+#endif
+
+#ifndef sdr_round_up_nearest_po2
+#define sdr_round_up_nearest_po2(x) ({ \
+    __auto_type m_ret = (x); \
+    if (!sdr_is_pow_of_two(x)) \
+       m_ret = 1u << ((CHAR_BIT * sizeof(x)) - (sdr_gclz(x))); \
+    m_ret; \
 })
 #endif
 

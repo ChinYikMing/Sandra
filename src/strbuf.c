@@ -36,11 +36,7 @@ int sdr_strbuf_putn(SdrStrBuf *sb, const void *src, const size_t n) {
     const size_t extra_need = (n > balance) ? (n - balance) : 0;
     if (extra_need > 0) {
         const size_t total_need = capacity + extra_need;
-        size_t new_capacity = capacity;
-        do
-            new_capacity <<= 1u;
-        while (new_capacity < total_need);
-
+        const size_t new_capacity = sdr_round_up_nearest_po2(total_need);
         void *tmp = realloc(sb->buf, new_capacity);
         if (!tmp) return -1;
         sb->buf = tmp;

@@ -8,13 +8,13 @@
 #define D(x) \
     sdr_elist_data(x, SdrList, node)
 
-Test(EmbedList, init) {
+Test(init, point_to_self) {
     SDR_DEFINE_LIST(list);
     cr_assert(list.node.next == &list.node);
     cr_assert(list.node.prev == &list.node);
 }
 
-Test(EmbedList, push_front) {
+Test(push_front, insert_to_head_in_order) {
     SDR_DEFINE_LIST(list);
     SdrList nodes[3];
     sdr_list_push_front(&list, nodes);
@@ -35,7 +35,7 @@ Test(EmbedList, push_front) {
     cr_assert(D(nodes[0].node.prev) == nodes + 1);
 }
 
-Test(EmbedList, push_back) {
+Test(push_back, insert_to_tail_in_order) {
     SDR_DEFINE_LIST(list);
     SdrList nodes[3];
     sdr_list_push_back(&list, nodes);
@@ -55,7 +55,7 @@ Test(EmbedList, push_back) {
     cr_assert(D(nodes[0].node.prev) == &list);
 }
 
-Test(EmbedList, insert) {
+Test(insert, insert_node_by_index) {
     SDR_DEFINE_LIST(list);
     SdrList nodes[5];
     sdr_list_push_back(&list, nodes);
@@ -71,7 +71,7 @@ Test(EmbedList, insert) {
 
 }
 
-Test(EmbedList, get) {
+Test(get, get_data_by_index) {
     typedef struct user {
         int id;
         char *name;

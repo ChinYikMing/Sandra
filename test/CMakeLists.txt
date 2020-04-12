@@ -11,7 +11,8 @@ set(TESTING_NAMES
         embed_list
         list
         numgen
-        list_sort)
+        list_sort
+        bits)
 set(TESTING_UTILS
         utils/test_num.h
         utils/test_num.c)

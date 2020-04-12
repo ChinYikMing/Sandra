@@ -14,15 +14,15 @@ typedef struct sdr_list {
 
 typedef int (*sdr_fn_list_cmp)(SdrList *e1, SdrList *e2, void *arg);
 
-typedef struct sdr_list_pvt_cmp_data {
+typedef struct sdr_pvt_list_cmp_data {
     sdr_fn_list_cmp cmp;
     void *data;
-} SdrListPvtCmpData;
+} SdrPvtListCmpData;
 
-static inline int sdr_list_pvt_cmp(SdrEList *e1, SdrEList *e2, void *arg) {
+static inline int sdr_pvt_list_cmp(SdrEList *e1, SdrEList *e2, void *arg) {
     SdrList *l1 = sdr_elist_data(e1, SdrList, node);
     SdrList *l2 = sdr_elist_data(e2, SdrList, node);
-    SdrListPvtCmpData *cmp_data = arg;
+    SdrPvtListCmpData *cmp_data = arg;
     return cmp_data->cmp(l1, l2, cmp_data->data);
 }
 
@@ -123,7 +123,7 @@ static inline void sdr_list_remove_s(SdrList *node, long idx) {
 }
 
 static inline void sdr_list_sort(SdrList *list, sdr_fn_list_cmp cmp, void *data) {
-    sdr_elist_sort(&list->node, sdr_list_pvt_cmp, &(SdrListPvtCmpData) {
+    sdr_elist_sort(&list->node, sdr_pvt_list_cmp, &(SdrPvtListCmpData) {
         .cmp = cmp,
         .data = data
     });
