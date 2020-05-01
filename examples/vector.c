@@ -7,29 +7,29 @@
 
 int main() {
     SdrVector(char) vec;
-    sdr_vector_init(&vec, 2);
+    sdr_vec_init(&vec, 2);
 
-    sdr_vector_push_back(&vec, 'a');
-    sdr_vector_push_back(&vec, 'b');
-    sdr_vector_push_back(&vec, 'c');
-    sdr_vector_push_back(&vec, 'd');
+    sdr_vec_push_back(&vec, 'a');
+    sdr_vec_push_back(&vec, 'b');
+    sdr_vec_push_back(&vec, 'c');
+    sdr_vec_push_back(&vec, 'd');
 
-    char ret = sdr_vector_pop_front(&vec); // 'a'
+    char ret = sdr_vec_pop_front(&vec); // 'a'
     assert(ret == 'a');
-    assert(sdr_vector_capacity(&vec) == 4);
+    assert(sdr_vec_capacity(&vec) == 4);
 
-    sdr_vector_push_back(&vec, 'e');
-    assert(sdr_vector_capacity(&vec) == 4);
+    sdr_vec_push_back(&vec, 'e');
+    assert(sdr_vec_capacity(&vec) == 4);
 
-    sdr_vector_push_back(&vec, 'f');
-    assert(sdr_vector_capacity(&vec) == 8);
+    sdr_vec_push_back(&vec, 'f');
+    assert(sdr_vec_capacity(&vec) == 8);
 
-    sdr_vector_push_front(&vec, 'a');
+    sdr_vec_push_front(&vec, 'a');
 
-    sdr_vector_pop_back(&vec); // 'f'
+    sdr_vec_pop_back(&vec); // 'f'
 
     for (int i = 0; i < 6; i++) {
-        int val = sdr_vector_get(&vec, i);
+        int val = sdr_vec_get(&vec, i);
         assert(val == 'a' + i);
     }
 

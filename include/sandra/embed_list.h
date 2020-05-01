@@ -291,12 +291,12 @@ int sdr_elist_bulk_insert_s(SdrEList *list, SdrEList *first, SdrEList *last, lon
 })
 
 #define sdr_elist_filter_s(list, vec, fn_test, data, type, member) ({ \
-        sdr_vector_init((vec)); \
+        sdr_vec_init((vec)); \
         SdrEList *m_ef_ptr; \
         sdr_elist_for(list, m_ef_ptr) { \
             void *m_ef_tmp = sdr_elist_data(m_ef_ptr, type, member); \
             if ((fn_test(m_ef_tmp, (data)))) { \
-                sdr_vector_push_back((vec), m_ef_tmp); \
+                sdr_vec_push_back((vec), m_ef_tmp); \
             } \
         } \
 })

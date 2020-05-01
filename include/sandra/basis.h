@@ -126,10 +126,15 @@
 })
 #endif
 
+#ifndef sdr_gfls
+#define sdr_gfls(x) ({ \
+    (CHAR_BIT * sizeof(typeof(x))) - sdr_gclz(x); \
+})
+#endif
+
 /**
  * gffs - Returns one plus the index of the least significant 1-bit of x,
  *        or if x is zero, returns zero.
- *
  */
 #ifndef sdr_gffs
 #define sdr_gffs(x) ({ \
@@ -179,12 +184,19 @@
 })
 #endif
 
-#ifndef sdr_round_up_nearest_po2
-#define sdr_round_up_nearest_po2(x) ({ \
-    __auto_type m_ret = (x); \
+#ifndef sdr_nearest_geq_po2
+#define sdr_nearest_geq_po2(x) ({ \
+    __auto_type m_np_ret = (x); \
     if (!sdr_is_pow_of_two(x)) \
-       m_ret = 1u << ((CHAR_BIT * sizeof(x)) - (sdr_gclz(x))); \
-    m_ret; \
+       m_np_ret = 1u << (sdr_gfls(x)); \
+    m_np_ret; \
+})
+#endif
+
+#ifndef sdr_lg_po2
+#define sdr_lg_po2(x) ({ \
+    __auto_type m_lp_ret = (x); \
+    m_lp_ret ? (sdr_gfls(x) - 1) : 0; \
 })
 #endif
 

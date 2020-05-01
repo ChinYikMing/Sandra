@@ -2,288 +2,368 @@
 // Created by Jason Zheng on 2020/3/3.
 //
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "hicpp-signed-bitwise"
+
 #include <criterion/criterion.h>
 #include <sandra/vector.h>
 
-Test(IntVector, push_back) {
+Test(init_with_defalt_value, default_use_sbuf) {
     SdrVector(int) vec;
-    sdr_vector_init(&vec);
-
-    cr_assert(vec.capacity == 1u << SDR_VECTOR_DFLT_CAP_BITS);
-    cr_assert(vec.capacity == sdr_vector_capacity(&vec));
+    sdr_vec_init(&vec);
     cr_assert(vec.front == 0);
     cr_assert(vec.rear == 0);
+    cr_assert(vec.capacity == 1u << SDR_VEC_DFLT_STACK_CAP_BITS);
+    cr_assert(vec.capacity == sdr_vec_capacity(&vec));
+    cr_assert(sizeof(vec.sbuf) == sizeof(int) * (1u << SDR_VEC_DFLT_STACK_CAP_BITS));
+    cr_assert(vec.size == 0);
+    cr_assert(vec.el_size == sizeof(int));
+    cr_assert(vec.cap_bits == SDR_VEC_DFLT_STACK_CAP_BITS);
+    cr_assert(vec.use_hbuf == 0);
+
+    sdr_vec_destroy(&vec);
+}
+
+Test(init_with_custom_cap_bits, use_hbuf_if_greater_than_sbuf_cap_bits) {
+    const unsigned cap_bits = SDR_VEC_DFLT_STACK_CAP_BITS + 1;
+    SdrVector(int) vec;
+    sdr_vec_init(&vec, .heap_cap_bits = cap_bits);
+    cr_assert(vec.front == 0);
+    cr_assert(vec.rear == 0);
+    cr_assert(vec.capacity == 1u << cap_bits);
+    cr_assert(vec.capacity == sdr_vec_capacity(&vec));
+    cr_assert(sizeof(vec.sbuf) == sizeof(int) * (1u << SDR_VEC_DFLT_STACK_CAP_BITS));
+    cr_assert(vec.size == 0);
+    cr_assert(vec.el_size == sizeof(int));
+    cr_assert(vec.cap_bits == cap_bits);
+    cr_assert(vec.use_hbuf == 1);
+
+    sdr_vec_destroy(&vec);
+}
+
+Test(define_vector_with_custom_sbuf_cap, larger_stack_buf_size) {
+    const unsigned sbuf_cap_bits = 10;
+    SdrVector(int, sbuf_cap_bits) vec;
+    sdr_vec_init(&vec);
+    cr_assert(vec.front == 0);
+    cr_assert(vec.rear == 0);
+    cr_assert(vec.capacity == 1u << sbuf_cap_bits);
+    cr_assert(vec.capacity == sdr_vec_capacity(&vec));
+    cr_assert(sizeof(vec.sbuf) == sizeof(int) * (1u << sbuf_cap_bits));
+    cr_assert(vec.size == 0);
+    cr_assert(vec.el_size == sizeof(int));
+    cr_assert(vec.cap_bits == sbuf_cap_bits);
+    cr_assert(vec.use_hbuf == 0);
+
+    sdr_vec_destroy(&vec);
+}
+
+Test(sbuf_expand_with_empty, migrate_to_hbuf) {
+    SdrVector(int, 2) vec;
+    sdr_vec_init(&vec);
+    sdr_vec_expand(&vec, 1);
+
+    cr_assert(vec.use_hbuf == 1);
+}
+
+
+Test(sbuf_expand_without_full, migrate_to_hbuf) {
+    SdrVector(int, 2) vec;
+    sdr_vec_init(&vec);
+
+    sdr_vec_push_back(&vec, 1);
+    sdr_vec_push_back(&vec, 2);
+
+    sdr_vec_expand(&vec, 1);
+
+    cr_assert(sdr_vec_get(&vec, 0) == 1);
+    cr_assert(sdr_vec_get(&vec, 1) == 2);
+}
+
+Test(sbuf_expand_with_front_movement, migrate_to_hbuf) {
+    SdrVector(int, 2) vec;
+    sdr_vec_init(&vec);
+
+    sdr_vec_push_back(&vec, 1);
+    sdr_vec_push_back(&vec, 2);
+    sdr_vec_push_back(&vec, 3);
+    sdr_vec_push_back(&vec, 4);
+    sdr_vec_pop_front(&vec, NULL);
+    sdr_vec_pop_front(&vec, NULL);
+
+    sdr_vec_expand(&vec, 1);
+
+    cr_assert(sdr_vec_get(&vec, 0) == 3);
+    cr_assert(sdr_vec_get(&vec, 1) == 4);
+}
+
+Test(sbuf_expand_with_rear_movement, migrate_to_hbuf) {
+    SdrVector(int, 2) vec;
+    sdr_vec_init(&vec);
+
+    sdr_vec_push_back(&vec, 1);
+    sdr_vec_push_back(&vec, 2);
+    sdr_vec_push_back(&vec, 3);
+    sdr_vec_push_back(&vec, 4);
+    sdr_vec_pop_front(&vec, NULL);
+    sdr_vec_pop_front(&vec, NULL);
+    sdr_vec_pop_front(&vec, NULL);
+    sdr_vec_push_back(&vec, 3);
+    sdr_vec_push_back(&vec, 2);
+    sdr_vec_push_back(&vec, 1);
+
+    sdr_vec_expand(&vec, 1);
+
+    cr_assert(sdr_vec_get(&vec, 0) == 4);
+    cr_assert(sdr_vec_get(&vec, 1) == 3);
+    cr_assert(sdr_vec_get(&vec, 2) == 2);
+    cr_assert(sdr_vec_get(&vec, 3) == 1);
+}
+
+Test(push_back, auto_expand_if_necessary) {
+    SdrVector(int) vec;
+    sdr_vec_init(&vec);
 
     int i;
-    int test_size = 1024;
-    for (i = 0; i < test_size; i++) {
-        int ret = sdr_vector_push_back(&vec, i * 10);
+    int stest_size = 1u << SDR_VEC_DFLT_STACK_CAP_BITS;
+    for (i = 0; i < stest_size; i++) {
+        int ret = sdr_vec_push_back(&vec, i * 10);
+        cr_assert(vec.front == 0);
+        cr_assert(vec.rear == (i + 1) % stest_size);
         cr_assert(ret == 0);
     }
-    cr_assert(i == test_size);
-    cr_assert(vec.size == test_size);
-    cr_assert(vec.size == sdr_vector_size(&vec));
-    cr_assert(vec.capacity >= test_size);
-    cr_assert(vec.capacity == sdr_vector_capacity(&vec));
+    cr_assert(i == stest_size);
+    cr_assert(vec.front == 0);
+    cr_assert(vec.rear == 0);
+    cr_assert(vec.size == stest_size);
+    cr_assert(vec.size == sdr_vec_size(&vec));
+    cr_assert(vec.capacity >= stest_size);
+    cr_assert(vec.capacity == sdr_vec_capacity(&vec));
+
+    int total_test_size = stest_size << 1u;
+    for (; i < total_test_size; i++) {
+        int ret = sdr_vec_push_back(&vec, i * 10);
+        cr_assert(vec.front == 0);
+        cr_assert(vec.rear == (i + 1) % total_test_size);
+        cr_assert(ret == 0);
+    }
+    cr_assert(i == total_test_size);
+    cr_assert(vec.front == 0);
+    cr_assert(vec.rear == 0);
+    cr_assert(vec.size == total_test_size);
+    cr_assert(vec.size == sdr_vec_size(&vec));
+    cr_assert(vec.capacity >= total_test_size);
+    cr_assert(vec.capacity == sdr_vec_capacity(&vec));
 
     size_t index;
     int item;
-    sdr_vector_for_data(&vec, index, item) {
+    sdr_vec_for_el(&vec, index, item) {
         cr_assert(index * 10 == item);
-        index++;
     }
-    cr_assert(index == test_size);
+    cr_assert(index == total_test_size);
 
-    for (i = test_size - 1; i >= 0; i--) {
-        int num = sdr_vector_pop_back(&vec);
+    int j;
+    for (j = 0, i = total_test_size - 1; i >= 0; j++, i--) {
+        int num = 0;
+        int ret = sdr_vec_pop_back(&vec, &num);
+        cr_assert(ret == 0);
         cr_assert(i * 10 == num);
+        cr_assert(vec.front == 0);
+        cr_assert(vec.rear == total_test_size - 1 - j);
+        cr_assert(vec.size == i);
     }
     cr_assert(i == -1);
     cr_assert(vec.size == 0);
-    cr_assert(vec.size == sdr_vector_size(&vec));
+    cr_assert(vec.size == sdr_vec_size(&vec));
 
-    sdr_vector_destroy(&vec);
+    sdr_vec_destroy(&vec);
 }
 
-Test(IntVector, push_front) {
+Test(push_front, auto_expand_if_necessary) {
     SdrVector(int) vec;
-    sdr_vector_init(&vec);
-
-    cr_assert(vec.capacity == 1u << SDR_VECTOR_DFLT_CAP_BITS);
-    cr_assert(vec.capacity == sdr_vector_capacity(&vec));
-    cr_assert(vec.front == 0);
-    cr_assert(vec.rear == 0);
+    sdr_vec_init(&vec);
 
     int i;
-    int test_size = 1024;
-    for (i = 0; i < test_size; i++) {
-        int ret = sdr_vector_push_front(&vec, i * 10);
+    int stest_size = 1u << SDR_VEC_DFLT_STACK_CAP_BITS;
+    for (i = 0; i < stest_size; i++) {
+        int ret = sdr_vec_push_front(&vec, i * 10);
+        cr_assert(vec.front == (stest_size - 1 - i));
         cr_assert(ret == 0);
     }
-    cr_assert(i == test_size);
-    cr_assert(vec.size == test_size);
-    cr_assert(vec.size == sdr_vector_size(&vec));
-    cr_assert(vec.capacity >= test_size);
-    cr_assert(vec.capacity == sdr_vector_capacity(&vec));
+    cr_assert(i == stest_size);
+    cr_assert(vec.front == 0);
+    cr_assert(vec.rear == 0);
+    cr_assert(vec.size == stest_size);
+    cr_assert(vec.size == sdr_vec_size(&vec));
+    cr_assert(vec.capacity >= stest_size);
+    cr_assert(vec.capacity == sdr_vec_capacity(&vec));
+
+    int total_test_size = stest_size << 1u;
+    for (int j = 0; i < total_test_size; i++, j++) {
+        int ret = sdr_vec_push_front(&vec, i * 10);
+        cr_assert(vec.front == (total_test_size - 1 - j));
+        cr_assert(vec.rear == stest_size);
+
+        cr_assert(ret == 0);
+    }
+    cr_assert(i == total_test_size);
+    cr_assert(vec.front == stest_size);
+    cr_assert(vec.rear == stest_size);
+    cr_assert(vec.size == total_test_size);
+    cr_assert(vec.size == sdr_vec_size(&vec));
+    cr_assert(vec.capacity >= total_test_size);
+    cr_assert(vec.capacity == sdr_vec_capacity(&vec));
 
     size_t index;
     int item;
-    sdr_vector_for_data(&vec, index, item) {
-        cr_assert((test_size - index - 1) * 10 == item);
-        index++;
+    sdr_vec_for_el(&vec, index, item) {
+        cr_assert((total_test_size - index - 1) * 10 == item);
     }
-    cr_assert(index == test_size);
+    cr_assert(index == total_test_size);
 
-    for (i = test_size - 1; i >= 0; i--) {
-        int num = sdr_vector_pop_front(&vec);
+    for (i = total_test_size - 1; i >= 0; i--) {
+        int num = 0;
+        int ret = sdr_vec_pop_front(&vec, &num);
+        cr_assert(ret == 0);
         cr_assert(i * 10 == num);
+        cr_assert(vec.size == i);
     }
     cr_assert(i == -1);
+    cr_assert(vec.front == stest_size);
+    cr_assert(vec.rear == stest_size);
     cr_assert(vec.size == 0);
-    cr_assert(vec.size == sdr_vector_size(&vec));
+    cr_assert(vec.size == sdr_vec_size(&vec));
 
-    sdr_vector_destroy(&vec);
+    sdr_vec_destroy(&vec);
 }
 
-
-Test(IntVector, push_back_expand_coil_mov_front) {
+Test(push_back_with_coil, mov_front_to_end) {
     SdrVector(int) vec;
-    unsigned bits = 3;
-    int cap = 1u << 3u;
-    sdr_vector_init(&vec, bits);
-    cr_assert(vec.capacity == 1u << bits);
-    cr_assert(vec.capacity == sdr_vector_capacity(&vec));
-    cr_assert(vec.front == 0);
-    cr_assert(vec.rear == 0);
+    sdr_vec_init(&vec);
 
-    int i;
-    for (i = 0; i < 5; ++i) {
-        sdr_vector_push_back(&vec, i);
-        cr_assert(vec.rear == (i + 1));
-    }
-    for (i = 0; i < 5; ++i) {
-        int val = sdr_vector_pop_front(&vec);
-        cr_assert(val == i);
-        cr_assert(vec.front == (i + 1));
-    }
-    cr_assert(vec.front == 5);
-    cr_assert(vec.rear == 5);
+    unsigned cap_bits = SDR_VEC_DFLT_STACK_CAP_BITS;
+    size_t capacity = 1u << SDR_VEC_DFLT_STACK_CAP_BITS;
 
-    for (i = 0; i < 8; ++i) {
-        sdr_vector_push_back(&vec, i);
-        cr_assert(vec.rear == (5 + i + 1) % cap);
-    }
+    unsigned seed = (capacity >> 1u) + 1;
+    vec.front = vec.rear = seed;
+    vec.size = capacity;
 
-    sdr_vector_push_back(&vec, 8);
-    cr_assert(vec.cap_bits == bits + 1);
-    cr_assert(vec.capacity == 1u << (bits + 1));
-    cr_assert(vec.capacity == sdr_vector_capacity(&vec));
-    cr_assert(vec.front == 13);
-    cr_assert(vec.rear == 6);
+    unsigned expect_front = vec.front + capacity;
+    sdr_vec_push_back(&vec, 87);
 
-    sdr_vector_destroy(&vec);
+    cr_assert(vec.cap_bits == cap_bits + 1);
+    cr_assert(vec.capacity == 1u << (cap_bits + 1));
+    cr_assert(vec.capacity == sdr_vec_capacity(&vec));
+    cr_assert(vec.front == expect_front);
+    cr_assert(vec.rear == seed + 1);
+
+    sdr_vec_destroy(&vec);
 }
 
-Test(IntVector, push_back_expand_coil_mov_rear) {
+Test(push_back_with_coil, mov_rear_to_new_space) {
     SdrVector(int) vec;
-    unsigned bits = 3;
-    int cap = 1u << 3u;
-    sdr_vector_init(&vec, bits);
-    cr_assert(vec.capacity == 1u << bits);
-    cr_assert(vec.capacity == sdr_vector_capacity(&vec));
-    cr_assert(vec.front == 0);
-    cr_assert(vec.rear == 0);
+    sdr_vec_init(&vec);
 
-    int i;
-    for (i = 0; i < 3; ++i) {
-        sdr_vector_push_back(&vec, i);
-        cr_assert(vec.rear == (i + 1));
-    }
-    for (i = 0; i < 3; ++i) {
-        int val = sdr_vector_pop_front(&vec);
-        cr_assert(val == i);
-        cr_assert(vec.front == (i + 1));
-    }
-    cr_assert(vec.front == 3);
-    cr_assert(vec.rear == 3);
+    unsigned cap_bits = SDR_VEC_DFLT_STACK_CAP_BITS;
+    size_t capacity = 1u << SDR_VEC_DFLT_STACK_CAP_BITS;
 
-    for (i = 0; i < 8; ++i) {
-        sdr_vector_push_back(&vec, i);
-        cr_assert(vec.rear == (3 + i + 1) % cap);
-    }
+    unsigned seed = (capacity >> 1u) - 1;
+    vec.front = vec.rear = seed;
+    vec.size = capacity;
 
-    sdr_vector_push_back(&vec, 8);
-    cr_assert(vec.cap_bits == bits + 1);
-    cr_assert(vec.capacity == 1u << (bits + 1));
-    cr_assert(vec.capacity == sdr_vector_capacity(&vec));
-    cr_assert(vec.front == 3);
-    cr_assert(vec.rear == 12);
+    sdr_vec_push_back(&vec, 87);
 
-    sdr_vector_destroy(&vec);
+    cr_assert(vec.cap_bits == cap_bits + 1);
+    cr_assert(vec.capacity == 1u << (cap_bits + 1));
+    cr_assert(vec.capacity == sdr_vec_capacity(&vec));
+    cr_assert(vec.front == seed);
+    cr_assert(vec.rear == seed + capacity + 1);
 
+    sdr_vec_destroy(&vec);
 }
 
-Test(IntVector, push_front_expand_coil_mov_front) {
+Test(push_front_with_coil, mov_front_to_end) {
     SdrVector(int) vec;
-    unsigned bits = 3;
-    int cap = 1u << 3u;
-    sdr_vector_init(&vec, bits);
-    cr_assert(vec.capacity == 1u << bits);
-    cr_assert(vec.capacity == sdr_vector_capacity(&vec));
-    cr_assert(vec.front == 0);
-    cr_assert(vec.rear == 0);
+    sdr_vec_init(&vec);
 
-    int i;
-    for (i = 0; i < 5; ++i) {
-        sdr_vector_push_front(&vec, i);
-        cr_assert(vec.front == (8 - i - 1));
-    }
-    for (i = 0; i < 5; ++i) {
-        int val = sdr_vector_pop_back(&vec);
-        cr_assert(val == i);
-        cr_assert(vec.rear == (8 - i - 1));
-    }
-    cr_assert(vec.front == 3);
-    cr_assert(vec.rear == 3);
+    unsigned cap_bits = SDR_VEC_DFLT_STACK_CAP_BITS;
+    size_t capacity = 1u << SDR_VEC_DFLT_STACK_CAP_BITS;
 
-    for (i = 0; i < 8; ++i) {
-        sdr_vector_push_front(&vec, i);
-        cr_assert(vec.front == (cap + 3 - i - 1) % cap);
-    }
+    unsigned seed = (capacity >> 1u) + 1;
+    vec.front = vec.rear = seed;
+    vec.size = capacity;
 
-    sdr_vector_push_front(&vec, 8);
-    cr_assert(vec.cap_bits == bits + 1);
-    cr_assert(vec.capacity == 1u << (bits + 1));
-    cr_assert(vec.capacity == sdr_vector_capacity(&vec));
-    cr_assert(vec.front == 2);
-    cr_assert(vec.rear == 11);
+    unsigned expect_front = vec.front + capacity - 1;
+    sdr_vec_push_front(&vec, 87);
 
-    sdr_vector_destroy(&vec);
+    cr_assert(vec.cap_bits == cap_bits + 1);
+    cr_assert(vec.capacity == 1u << (cap_bits + 1));
+    cr_assert(vec.capacity == sdr_vec_capacity(&vec));
+    cr_assert(vec.front == expect_front);
+    cr_assert(vec.rear == seed);
+
+    sdr_vec_destroy(&vec);
 }
 
-Test(IntVector, push_all_back) {
+Test(push_front_with_coil, mov_rear_to_new_space) {
     SdrVector(int) vec;
-    int bits = 3;
-    int cap = 1u << 3u;
-    sdr_vector_init(&vec, bits);
-    for (int i = 0; i < 5; i++)
-        sdr_vector_push_back(&vec, i);
-    cr_assert(vec.cap_bits == bits);
-    cr_assert(vec.capacity == cap);
-    cr_assert(vec.capacity == sdr_vector_capacity(&vec));
-    cr_assert(vec.rear == 5);
+    sdr_vec_init(&vec);
 
-    int list[15];
-    sdr_vector_bulk_push_back(&vec, list, 15);
-    cr_assert(vec.cap_bits == 5);
-    cr_assert(vec.capacity == 32);
-    cr_assert(vec.capacity == sdr_vector_capacity(&vec));
-    cr_assert(vec.rear == 20);
-    cr_assert(vec.size == 20);
+    unsigned cap_bits = SDR_VEC_DFLT_STACK_CAP_BITS;
+    size_t capacity = 1u << SDR_VEC_DFLT_STACK_CAP_BITS;
 
+    unsigned seed = (capacity >> 1u) - 1;
+    vec.front = vec.rear = seed;
+    vec.size = capacity;
+
+    sdr_vec_push_front(&vec, 87);
+
+    cr_assert(vec.cap_bits == cap_bits + 1);
+    cr_assert(vec.capacity == 1u << (cap_bits + 1));
+    cr_assert(vec.capacity == sdr_vec_capacity(&vec));
+    cr_assert(vec.front == seed - 1);
+    cr_assert(vec.rear == seed + capacity);
+
+    sdr_vec_destroy(&vec);
 }
 
-Test(IntVector, push_all_back_with_empty_size) {
+Test(push_all_back, auto_expand_if_necessary) {
     SdrVector(int) vec;
-    int bits = 3;
-    sdr_vector_init(&vec, bits);
+    sdr_vec_init(&vec);
 
-    int list[16];
-    sdr_vector_bulk_push_back(&vec, list, 16);
-    cr_assert(vec.cap_bits == 5);
-    cr_assert(vec.capacity == 32);
-    cr_assert(vec.capacity == sdr_vector_capacity(&vec));
-    cr_assert(vec.rear == 16);
-    cr_assert(vec.size == 16);
-    cr_assert(vec.size == sdr_vector_size(&vec));
+    const size_t s = 250;
+    int list[s];
+    int ret = sdr_vec_bulk_push_back(&vec, list, s);
+    cr_assert(ret == 0);
+    cr_assert(vec.cap_bits >= 8);
+    cr_assert(vec.capacity >= 256);
+    cr_assert(vec.capacity == sdr_vec_capacity(&vec));
+    cr_assert(vec.size == s);
+    cr_assert(vec.rear == s);
 
-}
-
-Test(IntVector, straighten) {
-    SdrVector(int) vec;
-    int bits = 2;
-    sdr_vector_init(&vec, bits);
-
-    sdr_vector_push_back(&vec, 'x');
-    sdr_vector_push_back(&vec, 'y');
-    sdr_vector_push_back(&vec, 'a');
-    sdr_vector_push_back(&vec, 'b');
-
-    sdr_vector_pop_front(&vec);
-    sdr_vector_pop_front(&vec);
-
-    sdr_vector_push_back(&vec, 'c');
-    sdr_vector_push_back(&vec, 'd');
-
-    int *raw = sdr_vector_raw(&vec);
-    cr_assert(vec.front == 0);
-    cr_assert(vec.rear == 4);
-    cr_assert(vec.val == raw);
-    cr_assert(vec.val[0] == 'a');
-    cr_assert(vec.val[1] == 'b');
-    cr_assert(vec.val[2] == 'c');
-    cr_assert(vec.val[3] == 'd');
+    sdr_vec_destroy(&vec);
 }
 
 int cmp(const void *a, const void *b) {
-    return *(int *) a - *(int *) b;
+    return *(char *) a - *(char *) b;
 }
 
 Test(IntVector, sort) {
-    SdrVector(int) vec;
-    int bits = 2;
-    sdr_vector_init(&vec, bits);
+    SdrVector(char) vec;
+    sdr_vec_init(&vec);
 
-    sdr_vector_push_back(&vec, 'c');
-    sdr_vector_push_back(&vec, 'a');
-    sdr_vector_push_back(&vec, 'b');
-    sdr_vector_push_back(&vec, 'd');
+    sdr_vec_push_back(&vec, 'c');
+    sdr_vec_push_back(&vec, 'a');
+    sdr_vec_push_back(&vec, 'b');
+    sdr_vec_push_back(&vec, 'd');
 
-    sdr_vector_sort(&vec, cmp);
+    sdr_vec_qsort(&vec, cmp);
 
-    cr_assert(vec.val[0] == 'a');
-    cr_assert(vec.val[1] == 'b');
-    cr_assert(vec.val[2] == 'c');
-    cr_assert(vec.val[3] == 'd');
+    cr_assert(sdr_vec_get(&vec, 0) == 'a');
+    cr_assert(sdr_vec_get(&vec, 1) == 'b');
+    cr_assert(sdr_vec_get(&vec, 2) == 'c');
+    cr_assert(sdr_vec_get(&vec, 3) == 'd');
 }
 
+
+#pragma clang diagnostic pop

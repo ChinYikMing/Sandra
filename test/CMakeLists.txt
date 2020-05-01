@@ -12,7 +12,8 @@ set(TESTING_NAMES
         list
         numgen
         list_sort
-        bits)
+        bits
+        )
 set(TESTING_UTILS
         utils/test_num.h
         utils/test_num.c)

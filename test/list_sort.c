@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <sandra/embed_list.h>
 #include <assert.h>
-#include <sandra/str.h>
+#include <sandra/string.h>
 #include "utils/test_num.h"
 
 #define DFLT_FILENAME   "test_num.txt"
@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
     char *filename = NULL;
 
     int opt;
+    char *tmp;
     while ((opt = getopt(argc, argv, "vtps:f:r:c:")) != -1) {
         switch (opt) {
             case 'v':
@@ -45,17 +46,17 @@ int main(int argc, char *argv[]) {
                 progressive_test = 1;
                 break;
             case 's':
-                sdr_str_to_long(optarg, test_size);
+                test_size = strtol(optarg, &tmp, 10);
                 break;
             case 'f':
                 file_mode = 1;
                 filename = optarg;
                 break;
             case 'r':
-                sdr_str_to_long(optarg, num_range);
+                num_range = (int) strtol(optarg, &tmp, 10);
                 break;
             case 'c':
-                sdr_str_to_long(optarg, test_cnt);
+                test_cnt = strtol(optarg, &tmp, 10);
                 break;
             default:
                 fprintf(stderr, "Usage: %s [options]\n", argv[0]);

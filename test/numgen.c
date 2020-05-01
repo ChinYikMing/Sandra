@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <limits.h>
 #include <stdio.h>
-#include <sandra/str.h>
 #include <stdlib.h>
 #include <time.h>
 #include "utils/test_num.h"
@@ -19,6 +18,7 @@ int main(int argc, char *argv[]) {
     char *filename;
 
     int opt;
+    char *tmp;
     while ((opt = getopt(argc, argv, "vts:r:")) != -1) {
         switch (opt) {
             case 'v':
@@ -28,10 +28,10 @@ int main(int argc, char *argv[]) {
                 bin_mode = 0;
                 break;
             case 's':
-                sdr_str_to_long(optarg, test_size);
+                test_size = strtol(optarg, &tmp, 10);
                 break;
             case 'r':
-                sdr_str_to_long(optarg, num_range);
+                num_range = (int) strtol(optarg, &tmp, 10);
                 break;
             default:
                 fprintf(stderr, "Usage: %s [options] filename\n", argv[0]);

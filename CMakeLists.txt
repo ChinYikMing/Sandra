@@ -1,5 +1,5 @@
 # ================= BASIC CONFIGS ==================
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.11)
 
 project(sandra
         VERSION 0.0.1
@@ -37,19 +37,19 @@ set(SANDRA_INC
         include/sandra/hash.h
         include/sandra/basis.h
         include/sandra/sgr.h
-        include/sandra/strbuf.h
         include/sandra/size.h
         include/sandra/embed_list.h
         include/sandra/list.h
         include/sandra/compiler_attr.h
-        include/sandra/str.h)
+        include/sandra/string.h
+        )
 
 set(SANDRA_SRC_DIR src)
 set(SANDRA_SRC
         src/abs_hash_map.c
         src/hash_map.c
-        src/strbuf.c
-        src/embed_list.c)
+        src/embed_list.c
+        )
 
 set(MUST_PREFIX_PATTERN
         "sdr_version|SDR_VERSION|SDR_VER_MAJOR|SDR_VER_MINOR|SDR_VER_PATCH")

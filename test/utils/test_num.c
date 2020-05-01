@@ -3,7 +3,7 @@
 //
 
 #include "test_num.h"
-#include <sandra/str.h>
+#include <sandra/string.h>
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <time.h>
@@ -71,9 +71,11 @@ int tnums_read(TestNumbers *numbers, const char *filename, int bin_mode) {
         numbers->size = 0;
         int n;
         char buf[16];
-        while (fgets(buf, 16, fp))
-            if (sdr_str_to_long(buf, n))
-                tnums_add(numbers, n);
+        char *tmp;
+        while (fgets(buf, 16, fp)) {
+            n = (int) strtol(buf, &tmp, 10);
+            tnums_add(numbers, n);
+        }
     }
     fclose(fp);
 

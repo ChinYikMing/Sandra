@@ -21,7 +21,7 @@ typedef size_t (*sdr_fn_index)(SdrAbsHashMap *map, size_t hashv);
     sdr_fn_hash hash; \
     sdr_fn_index index; \
     unsigned cap_bits; \
-    int save_hash_val
+    _Bool save_hash_val
 
 struct sdr_abs_hash_map {
     SdrMapCtx ctx;
@@ -30,7 +30,7 @@ struct sdr_abs_hash_map {
     SdrMapEntry *buckets;
     size_t capacity;
     unsigned cap_bits; /* 2 ^ bits = capacity */
-    int save_hash_val;
+    _Bool save_hash_val;
 };
 
 SDR_SUPPRESS_WARN("-Wunknown-attributes")
