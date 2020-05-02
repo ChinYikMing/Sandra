@@ -7,45 +7,45 @@
 
 Test(generic_ffs, uint_num) {
     unsigned int x = 0;
-    cr_assert(sdr_gffs(x) == 0);
+    cr_assert(sdr_u_ffs(x) == 0);
     x = 0b001;
-    cr_assert(sdr_gffs(x) == 1);
+    cr_assert(sdr_u_ffs(x) == 1);
     x = 0b010;
-    cr_assert(sdr_gffs(x) == 2);
+    cr_assert(sdr_u_ffs(x) == 2);
     x = 0b011;
-    cr_assert(sdr_gffs(x) == 1);
+    cr_assert(sdr_u_ffs(x) == 1);
     x = 0b100;
-    cr_assert(sdr_gffs(x) == 3);
+    cr_assert(sdr_u_ffs(x) == 3);
     x = 0b101;
-    cr_assert(sdr_gffs(x) == 1);
+    cr_assert(sdr_u_ffs(x) == 1);
     x = 0b110;
-    cr_assert(sdr_gffs(x) == 2);
+    cr_assert(sdr_u_ffs(x) == 2);
     x = 0b111;
-    cr_assert(sdr_gffs(x) == 1);
+    cr_assert(sdr_u_ffs(x) == 1);
     x = 0b1000;
-    cr_assert(sdr_gffs(x) == 4);
+    cr_assert(sdr_u_ffs(x) == 4);
 }
 
 Test(generic_clz, uint_num) {
     unsigned int x = 0;
     size_t bsize_uint = CHAR_BIT * sizeof x;
-    cr_assert(sdr_gclz(x) == bsize_uint);
+    cr_assert(sdr_u_clz(x) == bsize_uint);
     x = 0b001;
-    cr_assert(sdr_gclz(x) == bsize_uint - 1);
+    cr_assert(sdr_u_clz(x) == bsize_uint - 1);
     x = 0b010;
-    cr_assert(sdr_gclz(x) == bsize_uint - 2);
+    cr_assert(sdr_u_clz(x) == bsize_uint - 2);
     x = 0b011;
-    cr_assert(sdr_gclz(x) == bsize_uint - 2);
+    cr_assert(sdr_u_clz(x) == bsize_uint - 2);
     x = 0b100;
-    cr_assert(sdr_gclz(x) == bsize_uint - 3);
+    cr_assert(sdr_u_clz(x) == bsize_uint - 3);
     x = 0b101;
-    cr_assert(sdr_gclz(x) == bsize_uint - 3);
+    cr_assert(sdr_u_clz(x) == bsize_uint - 3);
     x = 0b110;
-    cr_assert(sdr_gclz(x) == bsize_uint - 3);
+    cr_assert(sdr_u_clz(x) == bsize_uint - 3);
     x = 0b111;
-    cr_assert(sdr_gclz(x) == bsize_uint - 3);
+    cr_assert(sdr_u_clz(x) == bsize_uint - 3);
     x = 0b1000;
-    cr_assert(sdr_gclz(x) == bsize_uint - 4);
+    cr_assert(sdr_u_clz(x) == bsize_uint - 4);
 }
 
 Test(round_up_nearest_power_of_two, uint_num) {

@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include "compiler_attr.h"
 
 #ifndef SDR_PRAGMA
 #define SDR_PRAGMA(x) _Pragma(#x)
@@ -38,11 +39,10 @@
 })
 #endif
 
-#ifndef sdr_max
-#define sdr_max(a, b) ({ \
-    __auto_type m_max_a = (a); \
-    __auto_type m_max_b = (b); \
-    m_max_a > m_max_b ? m_max_a : m_max_b; \
+#ifndef sdr_abs
+#define sdr_abs(x) ({ \
+    __auto_type m_abs_x = (x); \
+    m_abs_x < 0 ? -(m_abs_x) : m_abs_x; \
 })
 #endif
 
@@ -51,6 +51,24 @@
     __auto_type m_min_a = (a); \
     __auto_type m_min_b = (b); \
     m_max_a < m_max_b ? m_max_a : m_max_b; \
+})
+#endif
+
+#ifndef sdr_max
+#define sdr_max(a, b) ({ \
+    __auto_type m_max_a = (a); \
+    __auto_type m_max_b = (b); \
+    m_max_a > m_max_b ? m_max_a : m_max_b; \
+})
+#endif
+
+#ifndef sdr_clamp
+#define sdr_clamp(x, lo, hi) ({ \
+    __auto_type m_clamp_x = (x); \
+    __auto_type m_clamp_low = (lo); \
+    __auto_type m_clamp_high = (hi); \
+    (m_clamp_x < m_clamp_low) ? (m_clamp_low) \
+        : ((m_clamp_x > m_clamp_high) ? m_clamp_high : m_clamp_x) ; \
 })
 #endif
 
@@ -102,11 +120,11 @@
 #endif
 
 /**
- * gclz - Returns the number of leading 0-bits in x, starting at the
- *       most significant bit position.
+ * u_clz - Returns the number of leading 0-bits in x, starting at the
+ *         most significant bit position.
  */
-#ifndef sdr_gclz
-#define sdr_gclz(x) ({ \
+#ifndef sdr_u_clz
+#define sdr_u_clz(x) ({ \
     unsigned int m_clz_ret; \
     __auto_type m_clz_num = (x); \
     const size_t m_num_size = sizeof(m_clz_num); \
@@ -126,18 +144,18 @@
 })
 #endif
 
-#ifndef sdr_gfls
-#define sdr_gfls(x) ({ \
-    (CHAR_BIT * sizeof(typeof(x))) - sdr_gclz(x); \
+#ifndef sdr_u_fls
+#define sdr_u_fls(x) ({ \
+    (CHAR_BIT * sizeof(typeof(x))) - sdr_u_clz(x); \
 })
 #endif
 
 /**
- * gffs - Returns one plus the index of the least significant 1-bit of x,
- *        or if x is zero, returns zero.
+ * u_ffs - Returns one plus the index of the least significant 1-bit of x,
+ *         or if x is zero, returns zero.
  */
-#ifndef sdr_gffs
-#define sdr_gffs(x) ({ \
+#ifndef sdr_u_ffs
+#define sdr_u_ffs(x) ({ \
     unsigned int m_ffs_ret = 0; \
     __auto_type m_ffs_num = (x); \
     const size_t m_num_size = sizeof(m_ffs_num); \
@@ -188,7 +206,7 @@
 #define sdr_nearest_geq_po2(x) ({ \
     __auto_type m_np_ret = (x); \
     if (!sdr_is_pow_of_two(x)) \
-       m_np_ret = 1u << (sdr_gfls(x)); \
+       m_np_ret = 1u << (sdr_u_fls(x)); \
     m_np_ret; \
 })
 #endif
@@ -196,8 +214,38 @@
 #ifndef sdr_lg_po2
 #define sdr_lg_po2(x) ({ \
     __auto_type m_lp_ret = (x); \
-    m_lp_ret ? (sdr_gfls(x) - 1) : 0; \
+    m_lp_ret ? (sdr_u_fls(x) - 1) : 0; \
 })
+#endif
+
+typedef int (*sdr_qsort_r_compar)(const void *, const void *, void *);
+
+#if defined(__FreeBSD__) || defined(__APPLE__)
+typedef struct sdr_qsort_r_pvt_ctx {
+    sdr_qsort_r_compar cmp;
+    void *arg;
+} SdrQSortPvtCtx;
+
+sdr_attr_always_inline static inline
+int sdr_qsort_r_pvt_cmp_adaptor(void *arg, const void *a, const void *b) {
+    SdrQSortPvtCtx *ctx = arg;
+    return ctx->cmp(a, b, ctx->arg);
+}
+
+sdr_attr_always_inline static inline
+void sdr_u_qsort_r(void *base, size_t nmemb, size_t size,
+                   sdr_qsort_r_compar cmp, void *arg) {
+    qsort_r(base, nmemb, size,
+            &(SdrQSortPvtCtx) {.cmp = cmp, .arg = arg},
+            sdr_qsort_r_pvt_cmp_adaptor);
+}
+
+#else
+static inline
+void sdr_u_qsort_r(void *base, size_t nmemb, size_t size,
+               u_qsort_cmp cmp, void *arg){
+    qsort_r(base, nmemb, size, cmp, arg);
+}
 #endif
 
 #endif //SANDRA_BASIS_H

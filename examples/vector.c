@@ -6,15 +6,16 @@
 #include <assert.h>
 
 int main() {
-    SdrVector(char) vec;
-    sdr_vec_init(&vec, 2);
+    SdrVector(char, 2) vec;
+    sdr_vec_init(&vec);
 
     sdr_vec_push_back(&vec, 'a');
     sdr_vec_push_back(&vec, 'b');
     sdr_vec_push_back(&vec, 'c');
     sdr_vec_push_back(&vec, 'd');
 
-    char ret = sdr_vec_pop_front(&vec); // 'a'
+    char ret = '\0';
+    sdr_vec_pop_front(&vec, &ret); // 'a'
     assert(ret == 'a');
     assert(sdr_vec_capacity(&vec) == 4);
 
@@ -26,7 +27,7 @@ int main() {
 
     sdr_vec_push_front(&vec, 'a');
 
-    sdr_vec_pop_back(&vec); // 'f'
+    sdr_vec_pop_back(&vec, &ret); // 'f'
 
     for (int i = 0; i < 6; i++) {
         int val = sdr_vec_get(&vec, i);

@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "compiler_attr.h"
 
 #define SDR_STR_HASH33_SEED 5381
 #define SDR_STR_HASH65_SEED 9887
@@ -21,7 +22,8 @@
     mHashv; \
 })
 
-static inline size_t sdr_djb2(const unsigned seed, const unsigned shift, const char *str) {
+sdr_attr_always_inline static inline
+size_t sdr_djb2(const unsigned seed, const unsigned shift, const char *str) {
     return SDR_DJB2(seed, shift, str);
 }
 
@@ -29,7 +31,8 @@ static inline size_t sdr_djb2(const unsigned seed, const unsigned shift, const c
     SDR_DJB2(SDR_STR_HASH33_SEED, 5u, str); \
 })
 
-static inline size_t sdr_str_hash33(const char *str) {
+sdr_attr_always_inline static inline
+size_t sdr_str_hash33(const char *str) {
     return SDR_STR_HASH33(str);
 }
 
@@ -37,7 +40,8 @@ static inline size_t sdr_str_hash33(const char *str) {
     SDR_DJB2(SDR_STR_HASH65_SEED, 6u, str); \
 })
 
-static inline size_t sdr_str_hash65(const char *str) {
+sdr_attr_always_inline static inline
+size_t sdr_str_hash65(const char *str) {
     return SDR_STR_HASH65(str);
 }
 
@@ -45,7 +49,8 @@ static inline size_t sdr_str_hash65(const char *str) {
    num * SDR_INT_HASH_SEED; \
 })
 
-static inline size_t sdr_int_hash(const int num) {
+sdr_attr_always_inline static inline
+size_t sdr_int_hash(const int num) {
     return SDR_INT_HASH(num);
 }
 
@@ -53,7 +58,8 @@ static inline size_t sdr_int_hash(const int num) {
    num * SDR_LONG_HASH_SEED; \
 })
 
-static inline size_t sdr_long_hash(const long num) {
+sdr_attr_always_inline static inline
+size_t sdr_long_hash(const long num) {
     return SDR_LONG_HASH(num);
 }
 

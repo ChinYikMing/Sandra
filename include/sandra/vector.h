@@ -321,7 +321,7 @@ struct { \
 })
 
 #define sdr_vec_qsort_r(vec, fn_cmp, cmp_arg) ({ \
-    sdr_vec_sort(vec, qsort_r, fn_cmp, cmp_arg); \
+    sdr_vec_sort_r(vec, sdr_u_qsort_r, fn_cmp, cmp_arg); \
 })
 
 #define sdr_vec_entry(vec, idx) ({ \

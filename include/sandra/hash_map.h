@@ -80,14 +80,16 @@ void *sdr_hash_map_put(SdrHashMap *map, const void *k, const void *v);
 
 void *sdr_hash_map_entry(SdrHashMap *map, const void *k);
 
-static inline void *sdr_hash_map_get(SdrHashMap *map, const void *k) {
+sdr_attr_always_inline static inline
+void *sdr_hash_map_get(SdrHashMap *map, const void *k) {
     SdrMapEntry *entry = sdr_hash_map_entry(map, k);
     return entry ? entry->value : NULL;
 }
 
 int sdr_hash_map_remove(SdrHashMap *map, const void *k);
 
-static inline SdrMapCtx *sdr_hash_map_ctx(SdrHashMap *map) {
+sdr_attr_always_inline static inline
+SdrMapCtx *sdr_hash_map_ctx(SdrHashMap *map) {
     return &map->base.ctx;
 }
 
