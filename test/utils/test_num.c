@@ -3,7 +3,7 @@
 //
 
 #include "test_num.h"
-#include <sandra/string.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <time.h>
@@ -36,9 +36,9 @@ int tnums_gen(TestNumbers *numbers, int range, size_t cnt) {
         numbers->values = tmp;
     }
 
-    for (size_t i = 0; i < cnt; ++i) {
+    srand(time(NULL));
+    for (size_t i = 0; i < cnt; ++i)
         numbers->values[i] = rand() % range;
-    }
 
     numbers->size = cnt;
     return 0;
@@ -119,7 +119,7 @@ int tnums_equal(TestNumbers *n1, TestNumbers *n2) {
 int tnums_add(TestNumbers *numbers, int num) {
     if (numbers->size == numbers->capacity) {
         size_t new_cap = numbers->capacity << 1u;
-        void *tmp = realloc(numbers->values, new_cap);
+        void *tmp = realloc(numbers->values, sizeof(int) * new_cap);
         if (!tmp) return -1;
         numbers->values = tmp;
         numbers->capacity = new_cap;

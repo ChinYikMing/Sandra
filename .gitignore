@@ -58,3 +58,9 @@ cmake-build-*
 # External
 test-framework
 external
+
+# Environment
+venv
+
+# Test
+*.txt

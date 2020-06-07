@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "sandra/basis.h"
+#include "basis.h"
 
 #define SDR_VEC_ERR_MALLOC -1
 #define SDR_VEC_ERR_EMPTY -2

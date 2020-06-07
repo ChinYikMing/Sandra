@@ -57,7 +57,8 @@ int main(int argc, char *argv[]) {
         printf("\n");
     }
 
-    tnums_write(&tnums, filename, bin_mode);
+    tnums_write(&tnums, filename, !bin_mode);
 
+    tnums_destroy(&tnums);
     return 0;
 }
